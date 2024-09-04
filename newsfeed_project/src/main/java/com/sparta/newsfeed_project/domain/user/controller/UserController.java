@@ -1,12 +1,18 @@
 package com.sparta.newsfeed_project.domain.user.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.newsfeed_project.auth.security.UserDetailsImpl;
+import com.sparta.newsfeed_project.domain.common.ApiResponse;
+import com.sparta.newsfeed_project.domain.common.exception.CommonException;
+import com.sparta.newsfeed_project.domain.common.exception.ExceptionCode;
 import com.sparta.newsfeed_project.domain.user.dto.request.UserDeleteRequestDto;
 import com.sparta.newsfeed_project.domain.user.dto.request.UserCreateRequestDto;
 import com.sparta.newsfeed_project.domain.user.dto.request.UserUpdateRequestDto;
 import com.sparta.newsfeed_project.domain.user.dto.response.UserReadResponseDto;
 import com.sparta.newsfeed_project.domain.user.dto.response.UserCUResponseDto;
 import com.sparta.newsfeed_project.domain.user.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,38 +43,33 @@ public class UserController {
      * @return 회원 가입 결과
      */
     @PostMapping("/users/signup")
-    public ResponseEntity<Object> signup(@RequestBody @Valid UserCreateRequestDto requestDto, BindingResult bindingResult) {
+    public ApiResponse<UserCUResponseDto> signup(@RequestBody @Valid UserCreateRequestDto requestDto, BindingResult bindingResult, HttpServletResponse response) throws CommonException, JsonProcessingException {
         log.info(":::UserController - 회원 가입:::");
+
         List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+
         if (fieldErrors.size() > 0) {
-            Map<String, String> errorMap = Map.of("message", "Validation 에러");
-
-
+            ObjectMapper objectMapper = new ObjectMapper();
+            String message = "";
             for (FieldError fieldError : bindingResult.getFieldErrors()) {
-                errorMap.put(fieldError.getField(), fieldError.getDefaultMessage());
-
                 log.error("[Validation 에러] {} 필드 : {}", fieldError.getField(), fieldError.getDefaultMessage());
+                message = objectMapper.writeValueAsString(fieldError);
             }
 
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMap);
-        } else {
-            try {
-                UserCUResponseDto responseDto = this.userService.signup(requestDto);
-                String bearerToken = this.userService.createToken(responseDto);
+            throw new CommonException(ExceptionCode.FAILED_SIGNUP, new CommonException(message));
+        }
 
-                return ResponseEntity
-                        .ok()
-                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                        .body(responseDto);
-            } catch (UnsupportedEncodingException e) {
-                log.error("토큰 생성 에러 : {}", e.getMessage());
+        try {
+            UserCUResponseDto responseDto = this.userService.signup(requestDto);
+            String bearerToken = this.userService.createToken(responseDto);
 
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "토큰 생성 에러 : " + e.getMessage()));
-            } catch (IllegalArgumentException e) {
-                log.error("회원가입 실패 : {}", e.getMessage());
+            response.addHeader(HttpHeaders.AUTHORIZATION, bearerToken);
 
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "회원가입 실패 : " + e.getMessage()));
-            }
+            return ApiResponse.createSuccess("회원 가입 성공", HttpStatus.OK.value(), responseDto);
+        } catch (UnsupportedEncodingException e) {
+            log.error("토큰 생성 에러 : {}", e.getMessage());
+
+            throw new CommonException(ExceptionCode.FAILED_CREATE_TOKEN, e);
         }
     }
 
@@ -78,17 +79,11 @@ public class UserController {
      * @return 조회된 유저 객체를 담은 ResponseEntity
      */
     @GetMapping("/users/{userId}")
-    public ResponseEntity<Object> getUser(@PathVariable long userId) {
+    public ApiResponse<UserReadResponseDto> getUser(@PathVariable long userId) throws CommonException {
         log.info(":::UserController - 프로필 조회 (user id : {}):::", userId);
 
-        try {
-            UserReadResponseDto responseDto = this.userService.getUser(userId);
-            return ResponseEntity.ok(responseDto);
-        } catch (NullPointerException e) {
-            log.error("사용자 조회 실패 : {}", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "사용자 조회 실패 : " + e.getMessage()));
-        }
+        UserReadResponseDto responseDto = this.userService.getUser(userId);
+        return ApiResponse.createSuccess("프로필 조회 성공", HttpStatus.OK.value(), responseDto);
     }
 
 
@@ -98,24 +93,17 @@ public class UserController {
      * @return 수정된 유저 사용자 객체를 담은 ResponseEntity
      */
     @PutMapping("/users")
-    public ResponseEntity<Object> updateUser(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserUpdateRequestDto requestDto) {
+    public ApiResponse<UserCUResponseDto> updateUser(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserUpdateRequestDto requestDto, HttpServletResponse response) throws CommonException {
         log.info(":::UserController - 회원 정보 수정:::");
         try {
             UserCUResponseDto responseDto = this.userService.updateUser(userDetails.getUser(), requestDto);
             String bearerToken = this.userService.createToken(responseDto);
+            response.addHeader(HttpHeaders.AUTHORIZATION, bearerToken);
 
-            return ResponseEntity
-                    .ok()
-                    .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                    .body(responseDto);
+            return ApiResponse.createSuccess("회원 정보 수정 성공", HttpStatus.OK.value(), responseDto);
         } catch (UnsupportedEncodingException e) {
             log.error("토큰 생성 에러 : {}", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "토큰 생성 에러 : " + e.getMessage()));
-        } catch (IllegalArgumentException e) {
-            log.error("사용자 정보 수정 실패 : {}", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "사용자 정보 수정 실패 : " + e.getMessage()));
+            throw new CommonException(ExceptionCode.FAILED_UPDATE_USER, new CommonException(ExceptionCode.FAILED_CREATE_TOKEN));
         }
     }
 
@@ -126,18 +114,11 @@ public class UserController {
      * @return : 회원 탈퇴 결과
      */
     @DeleteMapping("/users")
-    public ResponseEntity<Object> deleteUser(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserDeleteRequestDto requestDto) {
+    public ApiResponse<Void> deleteUser(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserDeleteRequestDto requestDto) throws CommonException {
         log.info(":::UserController - 회원 탈퇴:::");
-        try {
-            this.userService.deleteUser(userDetails.getUser(), requestDto);
+        this.userService.deleteUser(userDetails.getUser(), requestDto);
 
-            return ResponseEntity.ok().body(Map.of("message", "회원 탈퇴 완료"));
-
-        } catch (IllegalArgumentException e) {
-            log.error("회원 탈퇴 실패 : {}", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "회원 탈퇴 실패 : " + e.getMessage()));
-        }
+        return ApiResponse.createSuccess("회원 탈퇴 성공", HttpStatus.OK.value(), null);
     }
 
 
