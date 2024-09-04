@@ -36,7 +36,12 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostList());
     }
 
-    //게시글 조회 상세조회???? 작성자Id + 댓글,내용?? , 작성자 Id = 접속자 , 친구 Id = 작성자 로 조회??
+    //뉴스피스 조회 친구로 등록된 유저의 모든 게시물을 조회하는 기능.
+    @GetMapping("/post/friends")
+    public ResponseEntity<List<NewsfeedResponseDto>> getNewsfeedList(@RequestParam(defaultValue = "0", required = false) int pageNo,
+                                                                     @RequestParam(defaultValue = "10",required = false) int size){
+        return ResponseEntity.ok(postService.getNewsfeedList(pageNo,size));
+    }
 
     //게시글 수정
     @PutMapping("/post/{postId}")
@@ -50,4 +55,6 @@ public class PostController {
     public void deletePost(@PathVariable Long postId){
         postService.deletePost(postId);
     }
+
+
 }

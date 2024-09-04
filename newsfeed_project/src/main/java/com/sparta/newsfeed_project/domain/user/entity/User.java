@@ -34,6 +34,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Post> posts;
 
+    @OneToMany(mappedBy = "followingUser")
+    private List<Friend> friends;
+
     public void addPost(Post post) {
         posts.add(post);
         post.setUser(this);

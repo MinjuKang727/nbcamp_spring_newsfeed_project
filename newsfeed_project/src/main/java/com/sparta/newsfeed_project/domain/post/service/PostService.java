@@ -1,9 +1,15 @@
 package com.sparta.newsfeed_project.domain.post.service;
 
+import com.sparta.newsfeed_project.domain.friend.entity.Friend;
+import com.sparta.newsfeed_project.domain.friend.repository.FriendRepository;
 import com.sparta.newsfeed_project.domain.post.dto.*;
 import com.sparta.newsfeed_project.domain.post.entity.Post;
 import com.sparta.newsfeed_project.domain.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +21,7 @@ import java.util.List;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final FriendRepository friendRepository;
 
     // 게시물 등록
     @Transactional
@@ -78,5 +85,22 @@ public class PostService {
 //                )
         //게시글 삭제
         postRepository.delete(post);
+    }
+
+    //뉴스피드 조회
+    public List<NewsfeedResponseDto> getNewsfeedList(int pageNo, int size) {
+        Pageable pageable = PageRequest.of(pageNo, size, Sort.by("createdAt").descending());
+        // 팔로우 한 유저만 제한. = 뉴스피드
+     Page<NewsfeedResponseDto> newsfeeds = postRepository.findAll(pageable).map(NewsfeedResponseDto::new);
+
+//        List<Friend> friends = friendRepository.findAll();
+//        for (Friend friend : friends){
+//
+//        }
+//        // myId.getFollowingUser.
+//        }
+
+
+        return newsfeeds.getContent();
     }
 }

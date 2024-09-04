@@ -1,17 +1,27 @@
 package com.sparta.newsfeed_project.domain.post.dto;
 
+import com.sparta.newsfeed_project.domain.post.entity.Post;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-//게시글 전체 조회 반환값
 @Getter
 @AllArgsConstructor
-public class PostSimpleResponseDto {
+public class NewsfeedResponseDto {
+
     private final String title;
     private final String content;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
+
+    public NewsfeedResponseDto(Post post) {
+        this.title = post.getTitle();
+        this.content = post.getContent();
+        this.createdAt = post.getCreatedAt();
+        this.modifiedAt = post.getModifiedAt();
+    }
+
+
 
 }
