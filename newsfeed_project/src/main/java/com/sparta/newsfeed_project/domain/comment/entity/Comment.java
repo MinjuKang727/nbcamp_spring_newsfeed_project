@@ -2,6 +2,7 @@ package com.sparta.newsfeed_project.domain.comment.entity;
 
 import com.sparta.newsfeed_project.domain.common.entity.Timestamped;
 import com.sparta.newsfeed_project.domain.post.entity.Post;
+import com.sparta.newsfeed_project.domain.user.entity.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -25,4 +26,8 @@ public class Comment extends Timestamped {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "postId", nullable = false)
     private Post post;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId", nullable = false)
+    private User user;
 }
