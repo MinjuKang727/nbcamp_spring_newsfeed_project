@@ -46,13 +46,13 @@ public class FriendService {
 
     @Transactional(readOnly = true)
     public List<FollowerResponseDto> getFollowerList(User me) {
-        List<Friend> followerList = friendRepository.findFriendsByFollowedUser(me);
+        List<Friend> followerList = friendRepository.findFriendsByFollowingUser(me);
         List<FollowerResponseDto> followerResponseDtoList = new ArrayList<>();
         for (Friend follower : followerList) {
             followerResponseDtoList.add(
                     new FollowerResponseDto(
-                            follower.getFollowingUser().getUsername(),
-                            follower.getFollowingUser().getEmail(),
+                            follower.getFollowedUser().getUsername(),
+                            follower.getFollowedUser().getEmail(),
                             follower.isAccepted()
                     )
             );

@@ -8,6 +8,7 @@ import com.sparta.newsfeed_project.domain.friend.service.FriendService;
 import com.sparta.newsfeed_project.domain.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class FriendController {
@@ -29,7 +31,7 @@ public class FriendController {
 
     @GetMapping("/friends")
     public ResponseEntity<List<FollowerResponseDto>> getFollowerList(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return ResponseEntity.ok(friendService.getFollowerList(userDetails.getUser()));
+        return new ResponseEntity<>(friendService.getFollowerList(userDetails.getUser()), HttpStatus.OK);
     }
 
     @PostMapping("/allow-following")

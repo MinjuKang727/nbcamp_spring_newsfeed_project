@@ -1,5 +1,8 @@
 package com.sparta.newsfeed_project.domain.friend.dto;
 
+import lombok.Getter;
+
+@Getter
 public class FollowerResponseDto {
     private final String username;
     private final String email;
