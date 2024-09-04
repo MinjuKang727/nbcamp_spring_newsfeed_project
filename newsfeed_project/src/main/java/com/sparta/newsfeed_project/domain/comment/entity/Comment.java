@@ -18,8 +18,7 @@ public class Comment extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+
 
 //    @NotBlank
 //    private String title;
@@ -40,12 +39,11 @@ public class Comment extends Timestamped {
         this.content = content;
         this.post = post;
         this.user = user;
-        this.createdAt = LocalDateTime.now();
+
     }
 
     public void update (String content){
         this.content =content;
-        this.modifiedAt = LocalDateTime.now();
     }
 
 

@@ -11,11 +11,8 @@ import java.time.LocalDateTime;
 @Getter
 public class PostSaveRequestDto {
     //postUser = 게시물을 등록하는 사람
-    private User postUser;
     private String title;
     private String content;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
 
 
     }

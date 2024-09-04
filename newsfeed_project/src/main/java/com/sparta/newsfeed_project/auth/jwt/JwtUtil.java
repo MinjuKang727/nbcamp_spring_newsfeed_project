@@ -68,6 +68,7 @@ public class JwtUtil {
      * @return BEARER_PREFIX를 자른 토큰 값
      */
     public String substringToken(String tokenValue) {
+        System.out.println(tokenValue);
         if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PERFIX)) {
             return tokenValue.substring(7);
         }
