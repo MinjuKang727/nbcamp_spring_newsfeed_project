@@ -9,24 +9,15 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class SignupRequestDto {
-    @NotBlank(message = "사용자명은 null이나 공백이 아니어야 합니다.")
-    private String username;
+public class UserDeleteRequestDto {
     @Email(message = "이메일 형식이 유효하지 않습니다.")
     private String email;
     @Size(min = 8, message = "비밀번호는 최소 8글자 이상입니다.")
     @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,15}$", message = "비밀번호는 대소문자 포함 영문 + 숫자 + 특수문자 최소 1글자씩 포함합니다.")
     private String password;
-    private String imageSrc;
-    @NotBlank(message = "휴대폰 번호는 null이나 공백이 아니어야 합니다.")
-    @Pattern(regexp = "^(01[016789]{1})-?[0-9]{3,4}-?[0-9]{4}$", message = "알 수 없는 형식의 휴대폰 번호입니다.")
-    private String phoneNumber;
 
-    public SignupRequestDto(String username, String email, String password, String imageSrc, String phoneNumber) {
-        this.username = username;
+    public UserDeleteRequestDto(String email, String password) {
         this.email = email;
         this.password = password;
-        this.imageSrc = imageSrc;
-        this.phoneNumber = phoneNumber;
     }
 }

@@ -2,12 +2,9 @@ package com.sparta.newsfeed_project.domain.user.entity;
 
 import com.sparta.newsfeed_project.domain.friend.entity.Friend;
 import com.sparta.newsfeed_project.domain.post.entity.Post;
-import com.sparta.newsfeed_project.domain.user.dto.request.SignupRequestDto;
+import com.sparta.newsfeed_project.domain.user.dto.request.UserCreateRequestDto;
+import com.sparta.newsfeed_project.domain.user.dto.request.UserUpdateRequestDto;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -42,7 +39,7 @@ public class User {
         this.password = password;
     }
 
-    public User(SignupRequestDto requestDto, String password) {
+    public User(UserCreateRequestDto requestDto, String password) {
         this.username = requestDto.getUsername();
         this.email = requestDto.getEmail();
         this.password = password;
@@ -52,8 +49,30 @@ public class User {
         }
     }
 
+    public void updateUser(UserUpdateRequestDto requestDto, String password) {
+        if (requestDto.getNewUsername() != null) {
+            this.username = requestDto.getNewUsername();
+        }
+        if (requestDto.getNewEmail() != null) {
+            this.email = requestDto.getNewEmail();
+        }
+        if (password != null) {
+            this.password = password;
+        }
+        if (requestDto.getNewPhoneNumber() != null) {
+            this.phoneNumber = requestDto.getNewPhoneNumber();
+        }
+        if (requestDto.getNewImageSrc() != null) {
+            this.imageSrc = requestDto.getNewImageSrc();
+        }
+    }
+
     public void addPost(Post post) {
         posts.add(post);
         post.setUser(this);
+    }
+
+    public void delete() {
+        this.isDeleted = 1;
     }
 }
