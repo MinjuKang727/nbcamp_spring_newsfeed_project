@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "\"like\"")
 @NoArgsConstructor
 @Table(name = "\"like\"")
 public class Like {

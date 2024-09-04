@@ -93,6 +93,7 @@ public class PostService {
         // 팔로우 한 유저만 제한. = 뉴스피드
      Page<NewsfeedResponseDto> newsfeeds = postRepository.findAll(pageable).map(NewsfeedResponseDto::new);
 
+     // 팔로잉하고 있는 유저의 게시물만 볼 수 있도록 하면 뉴스피드???
 //        List<Friend> friends = friendRepository.findAll();
 //        for (Friend friend : friends){
 //
