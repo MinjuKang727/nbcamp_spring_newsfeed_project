@@ -30,7 +30,7 @@ public class CommentService {
         Post post = postRepository.findById(post_id).
                 orElseThrow(()-> new NullPointerException("게시물을 찾을 수 없습니다"));
 
-        Comment comment = new Comment(commentSaveRequestDto.getContent(),commentSaveRequestDto.getPost(),commentSaveRequestDto.getUser());
+        Comment comment = new Comment(commentSaveRequestDto.getContent(),post,post.getUser());
         Comment savedComment = commentRepository.save(comment);
 
         PostDto postDto = new PostDto(post_id,post.getTitle(),post.getContent(),post.getCreatedAt(),post.getModifiedAt());
@@ -81,7 +81,7 @@ public class CommentService {
                 .orElseThrow(() -> new NullPointerException("댓글을 찾을 수 없습니다."));
 
         //게시물의 작성자 or 댓글의 작성자인지 확인
-        if (!comment.getUser().getId().equals(userDetails.getMyId()) || post.getUser().getId().equals(userDetails.getMyId())){
+        if (!comment.getUser().getId().equals(userDetails.getMyId()) || !post.getUser().getId().equals(userDetails.getMyId())){
                 throw new RuntimeException("댓글 수정은 댓글의 작성자 혹은 게시글의 작성자만 가능합니다.");
                 }
 
@@ -105,7 +105,7 @@ public class CommentService {
                 .orElseThrow(() -> new NullPointerException("댓글을 찾을 수 없습니다."));
 
         //게시물의 작성자 or 댓글의 작성자인지 확인
-        if (!comment.getUser().getId().equals(userDetails.getMyId()) || post.getUser().getId().equals(userDetails.getMyId())){
+        if (!comment.getUser().getId().equals(userDetails.getMyId()) || !post.getUser().getId().equals(userDetails.getMyId())){
             throw new RuntimeException("댓글 삭제는 댓글의 작성자 혹은 게시글의 작성자만 가능합니다.");
         }
 

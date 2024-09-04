@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public class CommentUpdateRequestDto {
     private Long userId;
     private Long postId;
-    private Long CommentId;
+    private Long commentId;
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
