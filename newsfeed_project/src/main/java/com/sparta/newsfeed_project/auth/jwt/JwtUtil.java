@@ -4,6 +4,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,12 +26,17 @@ public class JwtUtil {
     public static final String AUTHORIZATION_KEY = "auth";
     public static final String BEARER_PERFIX = "Bearer ";
     private final long TOKEN_TIME = 60 * 60 * 1000L; // 60분
+    private final HttpServletResponse httpServletResponse;
 
     @Value("${jwt.secret.key}")
     private String secretkey;
     private Key key;
     private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
     public static final Logger logger = LoggerFactory.getLogger("JWT 관련 로그");
+
+    public JwtUtil(HttpServletResponse httpServletResponse) {
+        this.httpServletResponse = httpServletResponse;
+    }
 
     @PostConstruct
     public void intit() {

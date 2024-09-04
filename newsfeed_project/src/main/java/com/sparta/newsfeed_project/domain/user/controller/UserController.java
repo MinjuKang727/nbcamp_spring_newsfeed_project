@@ -13,6 +13,7 @@ import com.sparta.newsfeed_project.domain.user.dto.response.UserReadResponseDto;
 import com.sparta.newsfeed_project.domain.user.dto.response.UserCUResponseDto;
 import com.sparta.newsfeed_project.domain.user.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,22 +44,8 @@ public class UserController {
      * @return 회원 가입 결과
      */
     @PostMapping("/users/signup")
-    public ApiResponse<UserCUResponseDto> signup(@RequestBody @Valid UserCreateRequestDto requestDto, BindingResult bindingResult, HttpServletResponse response) throws CommonException, JsonProcessingException {
+    public ApiResponse<UserCUResponseDto> signup(@RequestBody @Valid UserCreateRequestDto requestDto, HttpServletResponse response) throws CommonException, ConstraintViolationException {
         log.info(":::UserController - 회원 가입:::");
-
-        List<FieldError> fieldErrors = bindingResult.getFieldErrors();
-
-        if (fieldErrors.size() > 0) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String message = "";
-            for (FieldError fieldError : bindingResult.getFieldErrors()) {
-                log.error("[Validation 에러] {} 필드 : {}", fieldError.getField(), fieldError.getDefaultMessage());
-                message = objectMapper.writeValueAsString(fieldError);
-            }
-
-            throw new CommonException(ExceptionCode.FAILED_SIGNUP, new CommonException(message));
-        }
-
         try {
             UserCUResponseDto responseDto = this.userService.signup(requestDto);
             String bearerToken = this.userService.createToken(responseDto);

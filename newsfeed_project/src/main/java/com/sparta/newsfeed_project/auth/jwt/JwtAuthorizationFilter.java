@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -42,6 +43,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 this.setAuthentication(info.getSubject());
             } catch (Exception e) {
                 log.error(e.getMessage());
+                response.setStatus(HttpStatus.BAD_REQUEST.value());
                 return;
             }
         }

@@ -41,6 +41,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             );
         } catch (IOException e) {
             log.error(e.getMessage());
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -60,6 +61,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             response.setStatus(200);
         } else {
             response.setStatus(HttpStatus.BAD_REQUEST.value());
+            log.info("로그인 성공 및 JWT 생성 실패 (HttpStatus : {})", response.getStatus());
         }
 
     }
