@@ -32,12 +32,10 @@ public class FriendService {
                 : friendRepository.findByFollowingUserAndFollowedUser(other, me);
     }
 
-    public void followUser(Long id, String followingEmail) {
+    public void followUser(User me, String followingEmail) {
         User followingUser = userRepository.findUserByEmail(followingEmail).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않는 사용자입니다.")
         );
-        User me = findUser(id);
-
         if(findFriend(me, followingUser, true) != null) {
             throw new IllegalArgumentException("이미 팔로우한 사용자입니다.");
         }
@@ -47,8 +45,7 @@ public class FriendService {
     }
 
     @Transactional(readOnly = true)
-    public List<FollowerResponseDto> getFollowerList(Long myId) {
-        User me = findUser(myId);
+    public List<FollowerResponseDto> getFollowerList(User me) {
         List<Friend> followerList = friendRepository.findFriendsByFollowedUser(me);
         List<FollowerResponseDto> followerResponseDtoList = new ArrayList<>();
         for (Friend follower : followerList) {
@@ -63,8 +60,7 @@ public class FriendService {
         return followerResponseDtoList;
     }
 
-    public void allowFollowing(Long myId, Long followerId) {
-        User me = findUser(myId);
+    public void allowFollowing(User me, Long followerId) {
         User follower = findUser(followerId);
         Friend friend = findFriend(me, follower, false);
 
@@ -76,8 +72,7 @@ public class FriendService {
         }
     }
 
-    public void unfollow(Long myId, Long followingId) {
-        User me = findUser(myId);
+    public void unfollow(User me, Long followingId) {
         User follower = findUser(followingId);
         Friend friend = findFriend(me, follower, true);
 
