@@ -37,7 +37,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
             if (!jwtUtil.validateToken(tokenValue)) {
                 log.error("Token Error");
-                throw new RuntimeException("Token Error");
             }
 
             Claims info = jwtUtil.getUserInfoFromToken(tokenValue);

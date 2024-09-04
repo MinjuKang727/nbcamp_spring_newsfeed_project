@@ -1,14 +1,18 @@
 package com.sparta.newsfeed_project.domain.post.service;
 
 import com.sparta.newsfeed_project.auth.security.UserDetailsImpl;
+import com.sparta.newsfeed_project.domain.friend.entity.Friend;
+import com.sparta.newsfeed_project.domain.friend.repository.FriendRepository;
 import com.sparta.newsfeed_project.domain.post.dto.*;
 import com.sparta.newsfeed_project.domain.post.entity.Post;
 import com.sparta.newsfeed_project.domain.post.repository.PostRepository;
+import com.sparta.newsfeed_project.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +24,16 @@ import java.util.List;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final FriendRepository friendRepository;
+
+    private List<Long> getFollowingUserIdList (User user) {
+        List<Friend> followerList = friendRepository.findFriendsByFollowingUser(user);
+        List<Long> followingUserIds = new ArrayList<>();
+        for (Friend follower : followerList) {
+            followingUserIds.add(follower.getFollowedUser().getId());
+        }
+        return followingUserIds;
+    }
 
     // 게시물 등록
     @Transactional
@@ -93,13 +107,10 @@ public class PostService {
         // 팔로우 한 유저만 제한. = 뉴스피드
      Page<NewsfeedResponseDto> newsfeeds = postRepository.findAll(pageable).map(NewsfeedResponseDto::new);
 
-     // 팔로잉하고 있는 유저의 게시물만 볼 수 있도록 하면 뉴스피드???
-//        List<Friend> friends = friendRepository.findAll();
-//        for (Friend friend : friends){
-//
-//        }
-//        // myId.getFollowingUser.
-//        }
+        //내가 팔로우 하고 있는 아이디 들의 게시물 모음
+        List<Long> followingIds = getFollowingUserIdList(userDetails.getUser());
+        List<Post> followingIdsPost = postRepository.findAllById(followingIds);
+
 
 
         return newsfeeds.getContent();

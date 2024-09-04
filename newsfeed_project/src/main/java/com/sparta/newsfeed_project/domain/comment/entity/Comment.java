@@ -20,9 +20,7 @@ public class Comment extends Timestamped {
     private Long id;
 
 
-//    @NotBlank
-//    private String title;
-    @NotBlank
+
     private String content;
 
     @Setter

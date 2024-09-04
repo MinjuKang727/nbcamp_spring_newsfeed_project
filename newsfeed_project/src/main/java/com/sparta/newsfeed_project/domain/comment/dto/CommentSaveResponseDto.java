@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
 
 @Getter
-@RequiredArgsConstructor
 public class CommentSaveResponseDto {
 
     private final String content;
@@ -14,11 +13,11 @@ public class CommentSaveResponseDto {
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
-    public CommentSaveResponseDto(String content, PostDto post) {
+    public CommentSaveResponseDto(String content, PostDto post, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.content = content;
         this.post = post;
-        createdAt = LocalDateTime.now();
-        modifiedAt = LocalDateTime.now();
+       this.createdAt = createdAt;
+       this.modifiedAt = modifiedAt;
     }
 
 }
