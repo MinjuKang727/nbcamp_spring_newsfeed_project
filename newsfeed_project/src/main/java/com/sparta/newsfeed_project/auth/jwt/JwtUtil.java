@@ -47,8 +47,7 @@ public class JwtUtil {
     public String createToken(Long myId, String email, String name) throws UnsupportedEncodingException {
         Date date = new Date();
 
-        String token = BEARER_PERFIX +
-                        Jwts.builder()
+        String token = Jwts.builder()
                                 .setSubject(email)
                                 .claim("myName", name)
                                 .claim("myId", myId)
@@ -56,7 +55,6 @@ public class JwtUtil {
                                 .setIssuedAt(date)
                                 .signWith(key, signatureAlgorithm)
                                 .compact();
-
 
         return URLEncoder.encode(token, "UTF-8").replaceAll("\\+", "%20");
     }
@@ -68,10 +66,8 @@ public class JwtUtil {
      */
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token);
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+
             return true;
         } catch ( SecurityException | MalformedJwtException | SignatureException e) {
             logger.error("Invalid JWT signature, 유효하지 않은 JWT 서명입니다.");
@@ -115,6 +111,7 @@ public class JwtUtil {
      */
     public String substringToken(String tokenValue) {
         if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PERFIX)) {
+
             return tokenValue.substring(7);
         }
 
