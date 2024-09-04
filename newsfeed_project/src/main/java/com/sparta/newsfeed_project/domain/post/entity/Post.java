@@ -14,7 +14,6 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
-@Table(name="posts")
 public class Post extends Timestamped {
     // 게시글
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,14 +21,13 @@ public class Post extends Timestamped {
 
     private String title;
     private String content;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+
 
     // 게시글 작성자
     @Setter
     @Getter
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     // 댓글
