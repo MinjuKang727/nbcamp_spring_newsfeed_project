@@ -1,18 +1,20 @@
 package com.sparta.newsfeed_project.domain.user.controller;
 
 import com.sparta.newsfeed_project.auth.jwt.JwtUtil;
+import com.sparta.newsfeed_project.auth.security.UserDetailsImpl;
+import com.sparta.newsfeed_project.domain.user.dto.request.UserDeleteRequestDto;
 import com.sparta.newsfeed_project.domain.user.dto.request.SignupRequestDto;
 import com.sparta.newsfeed_project.domain.user.dto.request.UserUpdateRequestDto;
 import com.sparta.newsfeed_project.domain.user.dto.response.SignupResponseDto;
 import com.sparta.newsfeed_project.domain.user.dto.response.UserReadResponseDto;
 import com.sparta.newsfeed_project.domain.user.service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
@@ -36,33 +38,27 @@ public class UserController {
             for (FieldError fieldError : bindingResult.getFieldErrors()) {
                 log.error(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage());
             }
+        } else {
+            try {
+                SignupResponseDto responseDto = this.userService.signup(requestDto);
 
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .build();
+                try {
+                    String bearerToken = this.userService.getToken(responseDto.getMyId(), responseDto.getEmail(), responseDto.getUsername());
+                    return ResponseEntity
+                            .ok()
+                            .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                            .body(responseDto);
+                } catch (UnsupportedEncodingException e) {
+                    log.error("토큰 생성 에러");
+                    System.out.println(e.getMessage());
+                }
+            } catch (IllegalArgumentException e) {
+                log.error("회원가입 실패");
+                System.out.println(e.getMessage());
+            }
         }
 
-        SignupResponseDto responseDto;
-
-        try {
-            responseDto = this.userService.signup(requestDto);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-
-        String bearerToken;
-        try {
-            bearerToken = this.userService.getToken(responseDto.getMyId(), responseDto.getEmail(), responseDto.getUsername());
-        } catch (UnsupportedEncodingException e) {
-            log.error("토큰 생성 에러");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-
-        }
-
-        return ResponseEntity
-                .ok()
-                .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                .body(responseDto);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     /**
@@ -72,8 +68,16 @@ public class UserController {
      */
     @GetMapping("/users/{userId}")
     public ResponseEntity<UserReadResponseDto> getUser(@PathVariable long userId) {
-        log.trace("UserController - getUser() 메서드 실행");
-        return ResponseEntity.ok(this.userService.getUser(userId));
+        log.info("UserController - getUser() 메서드 실행");
+
+        try {
+            UserReadResponseDto responseDto = this.userService.getUser(userId);
+            return ResponseEntity.ok(responseDto);
+        } catch (NullPointerException e) {
+            log.error("사용자 회원 가입 실패");
+            log.error(e.getMessage());
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
 
@@ -83,11 +87,29 @@ public class UserController {
      * @return 수정된 유저 사용자 객체를 담은 ResponseEntity
      */
     @PutMapping("/users")
-    public ResponseEntity<Void> updateUser(HttpServletRequest request, @RequestBody @Valid UserUpdateRequestDto requestDto) {
+    public ResponseEntity<Void> updateUser(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserUpdateRequestDto requestDto) {
         log.info("UserController - updateUser() 메서드 실행");
-        log.info(request.getHeader(jwtUtil.AUTHORIZATION_HEADER));
-        this.userService.updateUser(requestDto);
+        try {
+            this.userService.updateUser(userDetails.getUser(), requestDto);
+        } catch (IllegalArgumentException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/users")
+    public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserDeleteRequestDto requestDto) {
+        log.info("UserController - deleteUser() 메서드 실행");
+        try {
+            this.userService.deleteUser(userDetails.getUser(), requestDto);
+            ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            log.error("회원 탈퇴 실패");
+            System.out.println(e.getMessage());
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
 
