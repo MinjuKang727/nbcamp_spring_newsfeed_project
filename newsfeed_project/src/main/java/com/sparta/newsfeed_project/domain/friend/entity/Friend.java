@@ -21,10 +21,15 @@ public class Friend {
     @JoinColumn(name = "followedUserId", nullable = false)
     private User followedUser;
 
-    private boolean accepted = false;
+    private boolean accepted;
 
     public Friend(User followingUser, User followedUser) {
         this.followingUser = followingUser;
         this.followedUser = followedUser;
+        this.accepted = false;
+    }
+
+    public void acceptFollow() {
+        this.accepted = true;
     }
 }
