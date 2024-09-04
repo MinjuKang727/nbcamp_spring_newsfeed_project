@@ -1,9 +1,7 @@
 package com.sparta.newsfeed_project.domain.friend.controller;
 
 import com.sparta.newsfeed_project.auth.security.UserDetailsImpl;
-import com.sparta.newsfeed_project.domain.friend.dto.FriendIdRequestDto;
-import com.sparta.newsfeed_project.domain.friend.dto.FriendEmailRequestDto;
-import com.sparta.newsfeed_project.domain.friend.dto.FollowerResponseDto;
+import com.sparta.newsfeed_project.domain.friend.dto.*;
 import com.sparta.newsfeed_project.domain.friend.service.FriendService;
 import com.sparta.newsfeed_project.domain.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,20 +22,18 @@ public class FriendController {
     private final FriendService friendService;
 
     @PostMapping("/follow")
-    @ResponseStatus(HttpStatus.OK)
-    public void followUser(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody FriendEmailRequestDto friendEmailRequestDto) {
-        friendService.followUser(userDetails.getUser(), friendEmailRequestDto.getEmail());
+    public ResponseEntity<FollowedResponseDto> followUser(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody FriendEmailRequestDto friendEmailRequestDto) {
+        return ResponseEntity.ok(friendService.followUser(userDetails.getUser(), friendEmailRequestDto.getEmail()));
     }
 
     @GetMapping("/friends")
-    public ResponseEntity<List<FollowerResponseDto>> getFollowerList(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return new ResponseEntity<>(friendService.getFollowerList(userDetails.getUser()), HttpStatus.OK);
+    public ResponseEntity<List<FollowedResponseDto>> getFollowerList(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok(friendService.getFollowerList(userDetails.getUser()));
     }
 
     @PostMapping("/allow-following")
-    @ResponseStatus(HttpStatus.OK)
-    public void allowFollowing(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody FriendIdRequestDto friendIdRequestDto) {
-        friendService.allowFollowing(userDetails.getUser(), friendIdRequestDto.getId());
+    public ResponseEntity<FollowingResponseDto> allowFollowing(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody FriendIdRequestDto friendIdRequestDto) {
+        return ResponseEntity.ok(friendService.allowFollowing(userDetails.getUser(), friendIdRequestDto.getId()));
     }
 
     @DeleteMapping("/unfollow")

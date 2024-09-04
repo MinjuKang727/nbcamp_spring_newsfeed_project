@@ -1,6 +1,7 @@
 package com.sparta.newsfeed_project.domain.friend.service;
 
-import com.sparta.newsfeed_project.domain.friend.dto.FollowerResponseDto;
+import com.sparta.newsfeed_project.domain.friend.dto.FollowedResponseDto;
+import com.sparta.newsfeed_project.domain.friend.dto.FollowingResponseDto;
 import com.sparta.newsfeed_project.domain.friend.entity.Friend;
 import com.sparta.newsfeed_project.domain.friend.repository.FriendRepository;
 import com.sparta.newsfeed_project.domain.user.entity.User;
@@ -32,7 +33,7 @@ public class FriendService {
                 : friendRepository.findByFollowingUserAndFollowedUser(other, me);
     }
 
-    public void followUser(User me, String followingEmail) {
+    public FollowedResponseDto followUser(User me, String followingEmail) {
         User followingUser = userRepository.findUserByEmail(followingEmail).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않는 사용자입니다.")
         );
@@ -42,25 +43,20 @@ public class FriendService {
 
         Friend friend = new Friend(me, followingUser);
         friendRepository.save(friend);
+        return new FollowedResponseDto(friend);
     }
 
     @Transactional(readOnly = true)
-    public List<FollowerResponseDto> getFollowerList(User me) {
+    public List<FollowedResponseDto> getFollowerList(User me) {
         List<Friend> followerList = friendRepository.findFriendsByFollowingUser(me);
-        List<FollowerResponseDto> followerResponseDtoList = new ArrayList<>();
+        List<FollowedResponseDto> followedResponseDtoList = new ArrayList<>();
         for (Friend follower : followerList) {
-            followerResponseDtoList.add(
-                    new FollowerResponseDto(
-                            follower.getFollowedUser().getUsername(),
-                            follower.getFollowedUser().getEmail(),
-                            follower.isAccepted()
-                    )
-            );
+            followedResponseDtoList.add(new FollowedResponseDto(follower));
         }
-        return followerResponseDtoList;
+        return followedResponseDtoList;
     }
 
-    public void allowFollowing(User me, Long followerId) {
+    public FollowingResponseDto allowFollowing(User me, Long followerId) {
         User follower = findUser(followerId);
         Friend friend = findFriend(me, follower, false);
 
@@ -69,7 +65,9 @@ public class FriendService {
         }
         if(!friend.isAccepted()) {
             friend.acceptFollow();
+            return new FollowingResponseDto(friend);
         }
+        return null;
     }
 
     public void unfollow(User me, Long followingId) {

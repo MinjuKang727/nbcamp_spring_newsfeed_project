@@ -2,6 +2,8 @@ package com.sparta.newsfeed_project.domain.like.service;
 
 import com.sparta.newsfeed_project.domain.comment.entity.Comment;
 import com.sparta.newsfeed_project.domain.comment.repository.CommentRepository;
+import com.sparta.newsfeed_project.domain.like.dto.LikeCommentResponseDto;
+import com.sparta.newsfeed_project.domain.like.dto.LikePostResponseDto;
 import com.sparta.newsfeed_project.domain.like.entity.Like;
 import com.sparta.newsfeed_project.domain.like.repository.LikeRepository;
 import com.sparta.newsfeed_project.domain.post.entity.Post;
@@ -11,6 +13,9 @@ import com.sparta.newsfeed_project.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Transactional
@@ -69,10 +74,34 @@ public class LikeService {
         performLike(user, post, "게시물");
     }
 
+    public List<LikePostResponseDto> getLikePost(User me) {
+        List<Like> likeList = likeRepository.findLikesByUser(me);
+        List<LikePostResponseDto> likePostResponseDtoList = new ArrayList<>();
+        for (Like like : likeList) {
+            User user = like.getUser();
+            Post post = like.getPost();
+            likePostResponseDtoList.add(new LikePostResponseDto(user.getId(), user.getEmail(), user.getUsername(),
+                    post.getPostId(), post.getTitle(), post.getContent()));
+        }
+        return likePostResponseDtoList;
+    }
+
     public void likeComment(User user, Long commentId) {
         Comment comment = findComment(commentId);
         validateLikeAction(user, comment.getUser().getId(), "댓글");
         performLike(user, comment, "댓글");
+    }
+
+    public List<LikeCommentResponseDto> getLikeComment(User me) {
+        List<Like> likeList = likeRepository.findLikesByUser(me);
+        List<LikeCommentResponseDto> likeCommentResponseDtoList = new ArrayList<>();
+        for (Like like : likeList) {
+            User user = like.getUser();
+            Comment comment = like.getComment();
+            likeCommentResponseDtoList.add(new LikeCommentResponseDto(user.getId(), user.getEmail(), user.getUsername(),
+                    comment.getId(), comment.getContent()));
+        }
+        return likeCommentResponseDtoList;
     }
 
     public void unlikePost(User user, Long postId) {
