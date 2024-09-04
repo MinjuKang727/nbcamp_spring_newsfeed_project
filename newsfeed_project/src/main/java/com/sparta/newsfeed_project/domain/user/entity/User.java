@@ -3,6 +3,7 @@ package com.sparta.newsfeed_project.domain.user.entity;
 import com.sparta.newsfeed_project.domain.friend.entity.Friend;
 import com.sparta.newsfeed_project.domain.post.entity.Post;
 import com.sparta.newsfeed_project.domain.user.dto.request.SignupRequestDto;
+import com.sparta.newsfeed_project.domain.user.dto.request.UserUpdateRequestDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -49,6 +50,24 @@ public class User {
         this.phoneNumber = requestDto.getPhoneNumber();
         if (requestDto.getImageSrc() != null) {
             imageSrc = requestDto.getImageSrc();
+        }
+    }
+
+    public void updateUser(UserUpdateRequestDto requestDto) {
+        if (requestDto.getNewUsername() != null) {
+            this.username = requestDto.getNewUsername();
+        }
+        if (requestDto.getNewEmail() != null) {
+            this.email = requestDto.getNewEmail();
+        }
+        if (requestDto.getNewPassword() != null) {
+            this.password = requestDto.getNewPassword();
+        }
+        if (requestDto.getNewPhoneNumber() != null) {
+            this.phoneNumber = requestDto.getNewPhoneNumber();
+        }
+        if (requestDto.getNewImageSrc() != null) {
+            this.imageSrc = requestDto.getNewImageSrc();
         }
     }
 
