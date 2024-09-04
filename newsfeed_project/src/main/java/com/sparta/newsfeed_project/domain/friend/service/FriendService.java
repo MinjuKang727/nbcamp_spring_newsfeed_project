@@ -33,7 +33,7 @@ public class FriendService {
     }
 
     public void followUser(Long id, String followingEmail) {
-        User followingUser = userRepository.findByEmail(followingEmail).orElseThrow(
+        User followingUser = userRepository.findUserByEmail(followingEmail).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않는 사용자입니다.")
         );
         User me = findUser(id);
