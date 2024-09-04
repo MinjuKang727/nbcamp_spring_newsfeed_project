@@ -80,6 +80,7 @@ public class LikeService {
         for (Like like : likeList) {
             User user = like.getUser();
             Post post = like.getPost();
+            if(post == null) continue;
             likePostResponseDtoList.add(new LikePostResponseDto(user.getId(), user.getEmail(), user.getUsername(),
                     post.getPostId(), post.getTitle(), post.getContent()));
         }
@@ -98,6 +99,7 @@ public class LikeService {
         for (Like like : likeList) {
             User user = like.getUser();
             Comment comment = like.getComment();
+            if(comment == null) continue;
             likeCommentResponseDtoList.add(new LikeCommentResponseDto(user.getId(), user.getEmail(), user.getUsername(),
                     comment.getId(), comment.getContent()));
         }

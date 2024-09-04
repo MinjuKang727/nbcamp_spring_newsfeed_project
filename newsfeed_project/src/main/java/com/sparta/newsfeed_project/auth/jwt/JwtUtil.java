@@ -47,8 +47,7 @@ public class JwtUtil {
     public String createToken(Long myId, String email, String name) throws UnsupportedEncodingException {
         Date date = new Date();
 
-        String token = BEARER_PERFIX +
-                        Jwts.builder()
+        String token = Jwts.builder()
                                 .setSubject(email)
                                 .claim("myName", name)
                                 .claim("myId", myId)
