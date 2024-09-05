@@ -57,15 +57,7 @@ public class PostService {
     public List<PostSimpleResponseDto> getPostList() {
 
         // 게시글이 있는지 없는지 확인. 예외처리 방법??
-        List<Post> posts = postRepository.findAll();
-
-        List<PostSimpleResponseDto> simpleDtoList = new ArrayList<>();
-
-        for (Post post : posts) {
-            PostSimpleResponseDto dto = new PostSimpleResponseDto(post.getPostId(),post.getTitle(), post.getContent(), post.getCreatedAt(), post.getModifiedAt());
-            simpleDtoList.add(dto);
-        }
-        return simpleDtoList;
+        return postRepository.getAllPostWithLikesCount();
     }
 
     //게시물 수정
@@ -102,8 +94,8 @@ public class PostService {
     }
 
     //뉴스피드 조회
-    public Page<NewsfeedResponseDto> getNewsfeedList(UserDetailsImpl userDetails,int pageNo, int size) {
-        Pageable pageable = PageRequest.of(pageNo, size, Sort.by("createdAt").descending());
+    public Page<NewsfeedResponseDto> getNewsfeedList(UserDetailsImpl userDetails,int pageNo, int size,String sort) {
+        Pageable pageable = PageRequest.of(pageNo, size, Sort.by(sort).descending());
         // 팔로우 한 유저만 제한. = 뉴스피드
 
         //내가 팔로우 하고 있는 아이디 들의 게시물 모음 + 내 아이디
