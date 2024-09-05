@@ -41,7 +41,6 @@ public class UserController {
         try {
             UserCUResponseDto responseDto = this.userService.signup(requestDto);
             String bearerToken = this.userService.createToken(responseDto);
-
             response.addHeader(HttpHeaders.AUTHORIZATION, bearerToken);
 
             return ApiResponse.createSuccess("회원 가입 성공", HttpStatus.OK.value(), responseDto);

@@ -4,6 +4,7 @@ public enum ExceptionCode {
 
     FAILED_SIGNUP("회원 가입 실패"),
     FAILED_LOGIN("로그인 실패"),
+    FAILED_LOGOUT("로그아웃 실패"),
     FAILED_VIEW_USER("회원 조회 실패"),
     FAILED_UPDATE_USER("회원 정보 수정 실패"),
     FAILED_DELETE_USER("회원 탈퇴 실패"),
@@ -16,6 +17,7 @@ public enum ExceptionCode {
     VIOLATE_VALIDATION("Validation Exception"),
 
     FAILED_CREATE_TOKEN("토큰 생성 실패"),
+    FAILED_ENCODING_TOKEN("토큰 인코딩 실패"),
     FAILED_JWT_VALIDATION("JWT 토큰 검증 실패"),
     FAILED_GET_TOKEN("토큰값 가져오기 실패"),
     INVALID_JWT_SIGNATURE("유효하지 않은 JWT 서명입니다."),

@@ -3,15 +3,16 @@ package com.sparta.newsfeed_project.domain.user.service;
 import com.sparta.newsfeed_project.auth.jwt.JwtUtil;
 import com.sparta.newsfeed_project.domain.common.exception.CommonException;
 import com.sparta.newsfeed_project.domain.common.exception.ExceptionCode;
-import com.sparta.newsfeed_project.domain.user.dto.request.UserDeleteRequestDto;
 import com.sparta.newsfeed_project.domain.user.dto.request.UserCreateRequestDto;
+import com.sparta.newsfeed_project.domain.user.dto.request.UserDeleteRequestDto;
 import com.sparta.newsfeed_project.domain.user.dto.request.UserUpdateRequestDto;
-import com.sparta.newsfeed_project.domain.user.dto.response.UserReadResponseDto;
 import com.sparta.newsfeed_project.domain.user.dto.response.UserCUResponseDto;
+import com.sparta.newsfeed_project.domain.user.dto.response.UserReadResponseDto;
 import com.sparta.newsfeed_project.domain.user.entity.User;
 import com.sparta.newsfeed_project.domain.user.entity.UserRole;
 import com.sparta.newsfeed_project.domain.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +36,8 @@ public class UserService {
     }
 
     // ADMIN_TOKEN
-    private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
+    @Value("${jwt.admin.token}")
+    private String ADMIN_TOKEN;
 
     @Transactional
     public UserCUResponseDto signup(UserCreateRequestDto requestDto) throws CommonException {
@@ -63,11 +65,11 @@ public class UserService {
             role = UserRole.ADMIN;
         }
 
-        // 사용자 등록
-        User user = new User(requestDto, password, role);
-        User savedUser = this.userRepository.save(user);
+            // 사용자 등록
+            User user = new User(requestDto, password, role);
+            User savedUser = this.userRepository.save(user);
 
-        return new UserCUResponseDto(savedUser);
+            return new UserCUResponseDto(savedUser);
     }
 
     /**

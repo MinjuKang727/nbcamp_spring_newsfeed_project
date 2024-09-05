@@ -34,6 +34,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
             if (!jwtUtil.validateToken(tokenValue)) {
                 log.error("Token Error");
+                response.getWriter().write("Token Error");
                 return;
             }
 
@@ -43,6 +44,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 this.setAuthentication(info.getSubject());
             } catch (Exception e) {
                 log.error(e.getMessage());
+                response.getWriter().write(e.getMessage());
                 return;
             }
         }

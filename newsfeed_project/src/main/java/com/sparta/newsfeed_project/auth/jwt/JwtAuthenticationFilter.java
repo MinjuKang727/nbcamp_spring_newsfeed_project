@@ -43,6 +43,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             log.error(e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
+
     }
 
     @Override
@@ -60,7 +61,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             response.addHeader(jwtUtil.AUTHORIZATION_HEADER, token);
             response.setStatus(200);
         } else {
-            log.info("로그인 성공 및 JWT 생성 실패 (HttpStatus : {})", response.getStatus());
+            response.getWriter().write("Create Token Error");
         }
 
     }
@@ -69,6 +70,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
         log.info("로그인 실패");
         response.setStatus(401);
+        response.getWriter().write("Fail to Login");
     }
 
 
