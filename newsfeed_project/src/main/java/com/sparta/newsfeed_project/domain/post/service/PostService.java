@@ -57,15 +57,7 @@ public class PostService {
     public List<PostSimpleResponseDto> getPostList() {
 
         // 게시글이 있는지 없는지 확인. 예외처리 방법??
-        List<Post> posts = postRepository.findAll();
-
-        List<PostSimpleResponseDto> simpleDtoList = new ArrayList<>();
-
-        for (Post post : posts) {
-            PostSimpleResponseDto dto = new PostSimpleResponseDto(post.getPostId(),post.getTitle(), post.getContent(), post.getCreatedAt(), post.getModifiedAt());
-            simpleDtoList.add(dto);
-        }
-        return simpleDtoList;
+        return postRepository.getAllPostWithLikesCount();
     }
 
     //게시물 수정

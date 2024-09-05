@@ -14,5 +14,5 @@ public class PostSimpleResponseDto {
     private final String content;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
-
+    private final Long likesCount;
 }
