@@ -46,8 +46,9 @@ public class PostController {
     @GetMapping("/newsfeed")
     public ResponseEntity<Page<NewsfeedResponseDto>> getNewsfeedList(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                      @RequestParam(defaultValue = "0", required = false) int pageNo,
-                                                                     @RequestParam(defaultValue = "10",required = false) int size){
-        return ResponseEntity.ok(postService.getNewsfeedList(userDetails,pageNo,size));
+                                                                     @RequestParam(defaultValue = "10",required = false) int size,
+                                                                     @RequestParam(defaultValue = "createdAt",required = false) String sort){
+        return ResponseEntity.ok(postService.getNewsfeedList(userDetails,pageNo,size,sort));
     }
 
     //게시글 수정
