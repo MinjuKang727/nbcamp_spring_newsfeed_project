@@ -13,11 +13,11 @@ public class PostSaveResponseDto {
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
-    public PostSaveResponseDto(UserDto postUser, String title, String content) {
+    public PostSaveResponseDto(UserDto postUser, String title, String content,LocalDateTime createdAt,LocalDateTime modifiedAt) {
         this.postUser = postUser;
         this.title = title;
         this.content = content;
-        this.createdAt = LocalDateTime.now();
-        this.modifiedAt = LocalDateTime.now();
+        this.createdAt = createdAt;
+        this.modifiedAt = modifiedAt;
     }
 }
