@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 
 //게시글 수정 반환값
 @Getter
-@RequiredArgsConstructor
 public class PostUpdateResponseDto {
     private final Long postId;
     private final String title;
@@ -16,13 +15,19 @@ public class PostUpdateResponseDto {
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
-    public PostUpdateResponseDto(Long postId, String title, String content, UserDto postUser, LocalDateTime createdAt) {
+    public PostUpdateResponseDto(UserDto postUser,
+                                 Long postId,
+                                 String title,
+                                 String content,
+                                 LocalDateTime createdAt,
+                                 LocalDateTime modifiedAt) {
+        this.postUser = postUser;
         this.postId = postId;
         this.title = title;
         this.content = content;
-        this.postUser = postUser;
         this.createdAt = createdAt;
-        this.modifiedAt = LocalDateTime.now();
+        this.modifiedAt =modifiedAt;
+
     }
 
 

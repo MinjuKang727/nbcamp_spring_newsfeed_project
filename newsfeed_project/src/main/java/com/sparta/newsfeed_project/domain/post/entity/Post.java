@@ -22,8 +22,7 @@ public class Post extends Timestamped {
 
     private String title;
     private String content;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+
 
     // 게시글 작성자
     @Setter

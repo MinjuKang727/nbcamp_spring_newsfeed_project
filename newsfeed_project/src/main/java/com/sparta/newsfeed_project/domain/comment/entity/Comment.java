@@ -19,21 +19,18 @@ public class Comment extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
 
-//    @NotBlank
-//    private String title;
-    @NotBlank
+
+
     private String content;
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "postId", nullable = false)
+    @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     //생성자
@@ -41,12 +38,11 @@ public class Comment extends Timestamped {
         this.content = content;
         this.post = post;
         this.user = user;
-        this.createdAt = LocalDateTime.now();
+
     }
 
     public void update (String content){
         this.content =content;
-        this.modifiedAt = LocalDateTime.now();
     }
 
 
