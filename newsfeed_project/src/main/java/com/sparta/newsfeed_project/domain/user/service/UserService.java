@@ -3,6 +3,7 @@ package com.sparta.newsfeed_project.domain.user.service;
 import com.sparta.newsfeed_project.auth.jwt.JwtUtil;
 import com.sparta.newsfeed_project.domain.common.exception.CommonException;
 import com.sparta.newsfeed_project.domain.common.exception.ExceptionCode;
+import com.sparta.newsfeed_project.domain.token.TokenBlacklistService;
 import com.sparta.newsfeed_project.domain.user.dto.request.UserCreateRequestDto;
 import com.sparta.newsfeed_project.domain.user.dto.request.UserDeleteRequestDto;
 import com.sparta.newsfeed_project.domain.user.dto.request.UserUpdateRequestDto;
@@ -46,13 +47,13 @@ public class UserService {
         String password = this.passwordEncoder.encode(requestDto.getPassword());
 
         // 회원 중복 확인
-        if (this.userRepository.countAllByEmail(email) > 0) {
+        if (this.userRepository.existsByEmail(email)) {
             throw new CommonException(ExceptionCode.FAILED_SIGNUP, new CommonException(ExceptionCode.ALREADY_EXIST_EMAIL));
         }
 
         // 휴대폰 번호 중복확인
         String phoneNumber = requestDto.getPhoneNumber();
-        if (userRepository.countAllByPhoneNumberAndIsDeleted(phoneNumber, 0) > 0) {
+        if (this.userRepository.existsByPhoneNumberAndIsDeleted(phoneNumber, 0)) {
             throw new CommonException(ExceptionCode.FAILED_SIGNUP, new CommonException(ExceptionCode.ALREADY_EXIST_PHONE_NUMBER));
         }
 
@@ -67,7 +68,7 @@ public class UserService {
 
             // 사용자 등록
             User user = new User(requestDto, password, role);
-            User savedUser = this.userRepository.save(user);
+            User savedUser = this.userRepository.saveAndFlush(user);
 
             return new UserCUResponseDto(savedUser);
     }
@@ -103,10 +104,12 @@ public class UserService {
         log.trace("updateUser() 메서드 실행");
         String email = requestDto.getNewEmail();
         String password = this.passwordEncoder.encode(requestDto.getPassword());
+
+        // 비밀번호 확인
         if (!this.passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
             throw new CommonException(ExceptionCode.FAILED_UPDATE_USER, new CommonException(ExceptionCode.INCORRECT_PASSWORD));
-        } else if (email != null) {
-            if (!Objects.equals(user.getEmail(), email) && this.userRepository.countAllByEmail(email) > 0) {
+        } else if (email != null) {  // 이메일 확인
+            if (!Objects.equals(user.getEmail(), email) && this.userRepository.existsByEmail(email)) {
                 throw new CommonException(ExceptionCode.FAILED_UPDATE_USER, new CommonException(ExceptionCode.ALREADY_EXIST_EMAIL));
             }
 
