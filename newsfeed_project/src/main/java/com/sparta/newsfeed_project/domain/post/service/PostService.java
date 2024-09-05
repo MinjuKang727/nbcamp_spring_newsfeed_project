@@ -62,7 +62,10 @@ public class PostService {
         List<PostSimpleResponseDto> simpleDtoList = new ArrayList<>();
 
         for (Post post : posts) {
-            PostSimpleResponseDto dto = new PostSimpleResponseDto(post.getPostId(),post.getTitle(), post.getContent(), post.getCreatedAt(), post.getModifiedAt());
+            PostSimpleResponseDto dto = new PostSimpleResponseDto(
+                    post.getPostId(),post.getTitle(), post.getContent(), post.getCreatedAt(), post.getModifiedAt(),
+                    post.getComments().size(), post.getLikes().size()
+            );
             simpleDtoList.add(dto);
         }
         return simpleDtoList;

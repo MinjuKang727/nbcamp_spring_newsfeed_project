@@ -2,6 +2,7 @@ package com.sparta.newsfeed_project.domain.post.entity;
 
 import com.sparta.newsfeed_project.domain.comment.entity.Comment;
 import com.sparta.newsfeed_project.domain.common.entity.Timestamped;
+import com.sparta.newsfeed_project.domain.like.entity.Like;
 import com.sparta.newsfeed_project.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -33,6 +34,9 @@ public class Post extends Timestamped {
     // 댓글
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Comment> comments;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Like> likes;
 
     //생성자
     public Post (String title, String content, User postUser){
