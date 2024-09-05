@@ -1,9 +1,13 @@
 package com.sparta.newsfeed_project.domain.post.controller;
 
+import com.sparta.newsfeed_project.auth.security.UserDetailsImpl;
 import com.sparta.newsfeed_project.domain.post.dto.*;
 import com.sparta.newsfeed_project.domain.post.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -25,35 +29,39 @@ public class PostController {
     private final PostService postService;
 
     //게시글 등록
-    @PostMapping("/post")
-    public ResponseEntity<PostSaveResponseDto> savePost(@RequestBody PostSaveRequestDto postSaveRequestDto){
-        return ResponseEntity.ok(postService.savePost(postSaveRequestDto));
+    @PostMapping("/posts")
+    public ResponseEntity<PostSaveResponseDto> savePost(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                        @RequestBody PostSaveRequestDto postSaveRequestDto){
+        System.out.println("11111"+ userDetails.getMyId()+ userDetails.getEmail()+ userDetails.getUsername()+userDetails.getUser() + userDetails.getMyId());
+        return ResponseEntity.ok(postService.savePost(userDetails,postSaveRequestDto));
     }
 
     //게시글 조회 작성자 Id 로 게시글 전체 조회 아이디를 빼고 상세조회를 작성자 Id를 넣어야할지 얘기해볼것.
-    @GetMapping("/post")
+    @GetMapping("/posts")
     public ResponseEntity<List<PostSimpleResponseDto>> getPostList (){
         return ResponseEntity.ok(postService.getPostList());
     }
 
     //뉴스피스 조회 친구로 등록된 유저의 모든 게시물을 조회하는 기능.
-    @GetMapping("/post/friends")
-    public ResponseEntity<List<NewsfeedResponseDto>> getNewsfeedList(@RequestParam(defaultValue = "0", required = false) int pageNo,
+    @GetMapping("/newsfeed")
+    public ResponseEntity<Page<NewsfeedResponseDto>> getNewsfeedList(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                                     @RequestParam(defaultValue = "0", required = false) int pageNo,
                                                                      @RequestParam(defaultValue = "10",required = false) int size){
-        return ResponseEntity.ok(postService.getNewsfeedList(pageNo,size));
+        return ResponseEntity.ok(postService.getNewsfeedList(userDetails,pageNo,size));
     }
 
     //게시글 수정
-    @PutMapping("/post/{postId}")
-    public ResponseEntity<PostUpdateResponseDto> updatePost (@PathVariable Long postId,
+    @PutMapping("/posts/{postId}")
+    public ResponseEntity<PostUpdateResponseDto> updatePost (@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                             @PathVariable Long postId,
                                                              @RequestBody PostUpdateRequestDto postUpdateRequestDto){
-        return ResponseEntity.ok(postService.updatePost(postId,postUpdateRequestDto));
+        return ResponseEntity.ok(postService.updatePost(userDetails,postId,postUpdateRequestDto));
 
     }
     //게시글 삭제
-    @DeleteMapping("/post/{postId}")
-    public void deletePost(@PathVariable Long postId){
-        postService.deletePost(postId);
+    @DeleteMapping("/posts/{postId}")
+    public void deletePost(@AuthenticationPrincipal UserDetailsImpl userDetails,@PathVariable Long postId){
+        postService.deletePost(userDetails,postId);
     }
 
 

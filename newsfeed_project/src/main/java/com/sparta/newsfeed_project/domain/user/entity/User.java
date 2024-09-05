@@ -38,12 +38,12 @@ public class User {
     @OneToMany(mappedBy = "followingUser")
     private List<Friend> friends;
 
-//    public User(String username, String email, String password, UserRole role) {
-//        this.username = username;
-//        this.email = email;
-//        this.password = password;
-//        this.role = role;
-//    }
+    public User(String username, String email, String password, UserRole role) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+    }
 
     public User(UserCreateRequestDto requestDto, String password, UserRole role) {
         this.username = requestDto.getUsername();
