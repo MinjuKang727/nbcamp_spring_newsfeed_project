@@ -33,8 +33,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         log.info("로그인 시도");
 
         try {
-//            this.tokenBlacklistService.addTokenToBlackList(request);
-
             UserLoginRequestDto requestDto = new ObjectMapper().readValue(request.getInputStream(), UserLoginRequestDto.class);
 
             return getAuthenticationManager().authenticate(
