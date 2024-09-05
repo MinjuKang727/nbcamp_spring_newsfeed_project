@@ -5,17 +5,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Getter
 @NoArgsConstructor
 @Table(name = "token_blacklist")
-public class TokenBlacklist {
+public class Token {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false, unique = true)
     private String token;
-    private LocalDateTime expirationTime;
+    private Date expirationTime;
+
+    public Token(String tokenValue, Date expirationTime) {
+        this.token = tokenValue;
+        this.expirationTime = expirationTime;
+    }
 }
 

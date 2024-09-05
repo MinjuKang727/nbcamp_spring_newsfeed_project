@@ -3,6 +3,7 @@ package com.sparta.newsfeed_project.config;
 import com.sparta.newsfeed_project.auth.UserLogoutHandler;
 import com.sparta.newsfeed_project.auth.jwt.*;
 import com.sparta.newsfeed_project.auth.security.UserDetailsServiceImpl;
+import com.sparta.newsfeed_project.domain.token.TokenBlacklistService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -34,6 +35,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class WebSecurityConfig {
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
+    private final TokenBlacklistService tokenBlacklistService;
     private final AuthenticationConfiguration authenticationConfiguration;
 
     @Bean
@@ -43,7 +45,7 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil);
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil, tokenBlacklistService);
         filter.setAuthenticationManager(this.authenticationManager(authenticationConfiguration));
         return filter;
     }
@@ -72,24 +74,18 @@ public class WebSecurityConfig {
         httpSecurity.addFilterBefore(jwtAuthorizationFilter(), LogoutFilter.class)
                 .logout(logout ->
                     logout
-                        .logoutUrl("/users/logout")
                         .logoutRequestMatcher(new AntPathRequestMatcher("/users/logout", "POST"))
-                        .addLogoutHandler(new UserLogoutHandler(jwtUtil))
+                        .addLogoutHandler(new UserLogoutHandler(tokenBlacklistService))
                         .logoutSuccessHandler((request, response, authentication) -> {
                                 response.setStatus(HttpServletResponse.SC_OK);
                                 response.getWriter().write("Logout Success");
                         })
+                        .logoutSuccessUrl("/")
                         .invalidateHttpSession(true)
         );
 
         httpSecurity.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
         httpSecurity.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-
-//        httpSecurity.exceptionHandling(exceptionHandling ->
-//                exceptionHandling
-//                        .authenticationEntryPoint(new NAuthenticationEntryPoint())
-//                        .accessDeniedHandler(new NAccessDeniedHandler())
-//                );
 
         return httpSecurity.build();
     }
