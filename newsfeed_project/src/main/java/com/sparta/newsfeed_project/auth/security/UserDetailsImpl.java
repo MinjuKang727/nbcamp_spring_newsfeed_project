@@ -1,6 +1,7 @@
 package com.sparta.newsfeed_project.auth.security;
 
 import com.sparta.newsfeed_project.domain.user.entity.User;
+import com.sparta.newsfeed_project.domain.user.entity.UserRole;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,7 +19,8 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        String authority = "ROLE_USER";
+        UserRole role = user.getRole();
+        String authority = role.getAuthority();
 
         SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(authority);
         Collection<GrantedAuthority> authorities = new ArrayList<>();
