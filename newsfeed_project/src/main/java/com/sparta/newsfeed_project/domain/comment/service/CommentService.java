@@ -47,10 +47,10 @@ public class CommentService {
     public List<CommentSimpleResponseDto> getCommentList(Long post_id) {
 
         //게시물이 있는지 확인
-        postRepository.findById(post_id).
+        Post post = postRepository.findById(post_id).
                 orElseThrow(()-> new NullPointerException("게시물을 찾을 수 없습니다"));
 
-        List<Comment> comments = commentRepository.findAll();
+        List<Comment> comments = post.getComments();
 
         List<CommentSimpleResponseDto> simpleDtoList = new ArrayList<>();
         for(Comment comment : comments){
