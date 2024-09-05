@@ -33,10 +33,10 @@ public class CommentService {
         Comment comment = new Comment(commentSaveRequestDto.getContent(),post,post.getUser());
         Comment savedComment = commentRepository.save(comment);
 
-        PostDto postDto = new PostDto(post_id,post.getTitle(),post.getContent(),post.getCreatedAt(),post.getModifiedAt());
+        PostDto postDto = new PostDto(post.getPostId(),post.getTitle(),post.getContent(),post.getCreatedAt(),post.getModifiedAt());
         return new CommentSaveResponseDto(
-                savedComment.getContent(),
                 postDto,
+                savedComment.getContent(),
                 savedComment.getCreatedAt(),
                 savedComment.getModifiedAt()
 
@@ -47,20 +47,21 @@ public class CommentService {
     public List<CommentSimpleResponseDto> getCommentList(Long post_id) {
 
         //게시물이 있는지 확인
-        Post post = postRepository.findById(post_id).
+        postRepository.findById(post_id).
                 orElseThrow(()-> new NullPointerException("게시물을 찾을 수 없습니다"));
 
         List<Comment> comments = commentRepository.findAll();
 
         List<CommentSimpleResponseDto> simpleDtoList = new ArrayList<>();
-        PostDto postDto =new PostDto(post.getPostId(),post.getTitle(),post.getContent(),post.getCreatedAt(),post.getModifiedAt());
         for(Comment comment : comments){
             CommentSimpleResponseDto dto = new CommentSimpleResponseDto(
+                    comment.getId(),
                     comment.getContent(),
+                    comment.getUser().getId(),
                     comment.getUser().getUsername(),
                     comment.getCreatedAt(),
-                    comment.getModifiedAt(),
-                    postDto);
+                    comment.getModifiedAt()
+                    );
             simpleDtoList.add(dto);
         }
         return simpleDtoList;
