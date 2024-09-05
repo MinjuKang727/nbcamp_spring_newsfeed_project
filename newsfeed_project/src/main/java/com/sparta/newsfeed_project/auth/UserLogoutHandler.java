@@ -12,7 +12,6 @@ public class UserLogoutHandler implements LogoutHandler {
 
     private final TokenBlacklistService tokenBlacklistService;
 
-
     public UserLogoutHandler(TokenBlacklistService tokenBlacklistService) {
         this.tokenBlacklistService = tokenBlacklistService;
     }
