@@ -3,12 +3,12 @@ package com.sparta.newsfeed_project.auth.jwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.newsfeed_project.auth.security.UserDetailsImpl;
 import com.sparta.newsfeed_project.domain.user.dto.request.UserLoginRequestDto;
+import com.sparta.newsfeed_project.domain.user.entity.UserRole;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -41,7 +41,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             );
         } catch (IOException e) {
             log.error(e.getMessage());
-            response.setStatus(HttpStatus.BAD_REQUEST.value());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -53,14 +52,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         Long myId = ((UserDetailsImpl) authResult.getPrincipal()).getMyId();
         String email = ((UserDetailsImpl) authResult.getPrincipal()).getEmail();
         String username = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
+        UserRole role = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getRole();
 
-        String token = jwtUtil.createToken(myId, email, username);
+        String token = jwtUtil.createToken(myId, email, username, role);
 
         if (token != null) {
             response.addHeader(jwtUtil.AUTHORIZATION_HEADER, token);
             response.setStatus(200);
         } else {
-            response.setStatus(HttpStatus.BAD_REQUEST.value());
             log.info("로그인 성공 및 JWT 생성 실패 (HttpStatus : {})", response.getStatus());
         }
 

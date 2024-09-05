@@ -1,5 +1,8 @@
 package com.sparta.newsfeed_project.auth.jwt;
 
+import com.sparta.newsfeed_project.domain.common.exception.CommonException;
+import com.sparta.newsfeed_project.domain.common.exception.ExceptionCode;
+import com.sparta.newsfeed_project.domain.user.entity.UserRole;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -25,6 +28,8 @@ public class JwtUtil {
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String AUTHORIZATION_KEY = "auth";
     public static final String BEARER_PERFIX = "Bearer ";
+    public static final String AUTHENTICATION_ERROR = "Authentication_error";
+    public static final String AUTHORIZATION_ERROR = "Authorization_error";
     private final long TOKEN_TIME = 60 * 60 * 1000L; // 60분
     private final HttpServletResponse httpServletResponse;
 
@@ -50,13 +55,14 @@ public class JwtUtil {
      * @param email : 사용자 이메일
      * @return JWT 토큰
      */
-    public String createToken(Long myId, String email, String name) throws UnsupportedEncodingException {
+    public String createToken(Long myId, String email, String name, UserRole role) throws UnsupportedEncodingException {
         Date date = new Date();
 
         String token = Jwts.builder()
                                 .setSubject(email)
                                 .claim("myName", name)
                                 .claim("myId", myId)
+                                .claim(AUTHORIZATION_KEY, role)
                                 .setExpiration(new Date(date.getTime() + TOKEN_TIME))
                                 .setIssuedAt(date)
                                 .signWith(key, signatureAlgorithm)
@@ -84,7 +90,6 @@ public class JwtUtil {
         } catch (IllegalArgumentException e) {
             logger.error("JWT claims is empty, 잘못된 JWT 토큰 입니다.");
         }
-
         return false;
     }
 
@@ -117,7 +122,6 @@ public class JwtUtil {
      */
     public String substringToken(String tokenValue) {
         if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PERFIX)) {
-
             return tokenValue.substring(7);
         }
 

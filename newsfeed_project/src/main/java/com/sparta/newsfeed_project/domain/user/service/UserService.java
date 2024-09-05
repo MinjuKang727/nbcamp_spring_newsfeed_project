@@ -9,6 +9,7 @@ import com.sparta.newsfeed_project.domain.user.dto.request.UserUpdateRequestDto;
 import com.sparta.newsfeed_project.domain.user.dto.response.UserReadResponseDto;
 import com.sparta.newsfeed_project.domain.user.dto.response.UserCUResponseDto;
 import com.sparta.newsfeed_project.domain.user.entity.User;
+import com.sparta.newsfeed_project.domain.user.entity.UserRole;
 import com.sparta.newsfeed_project.domain.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.UnsupportedEncodingException;
 import java.util.Objects;
 
-@Slf4j
+@Slf4j(topic = "UserService")
 @Service
 @Transactional(readOnly = true)
 public class UserService {
@@ -33,9 +34,12 @@ public class UserService {
         this.jwtUtil = jwtUtil;
     }
 
+    // ADMIN_TOKEN
+    private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
+
     @Transactional
     public UserCUResponseDto signup(UserCreateRequestDto requestDto) throws CommonException {
-        log.trace("UserService - signup() 메서드 실행");
+        log.trace("signup() 메서드 실행");
         String email = requestDto.getEmail();
         String password = this.passwordEncoder.encode(requestDto.getPassword());
 
@@ -50,8 +54,17 @@ public class UserService {
             throw new CommonException(ExceptionCode.FAILED_SIGNUP, new CommonException(ExceptionCode.ALREADY_EXIST_PHONE_NUMBER));
         }
 
+        // 사용자 ROLE 확인
+        UserRole role = UserRole.USER;
+        if(requestDto.isAdmin()) {
+            if (!ADMIN_TOKEN.equals(requestDto.getAdminToken())) {
+                throw new CommonException(ExceptionCode.FAILED_SIGNUP, new CommonException(ExceptionCode.INVALID_ADMIN_TOKEN));
+            }
+            role = UserRole.ADMIN;
+        }
+
         // 사용자 등록
-        User user = new User(requestDto, password);
+        User user = new User(requestDto, password, role);
         User savedUser = this.userRepository.save(user);
 
         return new UserCUResponseDto(savedUser);
@@ -64,6 +77,7 @@ public class UserService {
      * @throws NullPointerException
      */
     public UserReadResponseDto getUser(long userId) throws CommonException {
+        log.trace("getUser() 메서드 실행");
         User user = this.userRepository.findUserByIdAndIsDeleted(userId, 0)
                 .orElseThrow(() ->
                     new CommonException(ExceptionCode.FAILED_VIEW_USER, new CommonException(ExceptionCode.USER_NOT_FOUND))
@@ -84,6 +98,7 @@ public class UserService {
      */
     @Transactional
     public UserCUResponseDto updateUser(User user, UserUpdateRequestDto requestDto) throws CommonException {
+        log.trace("updateUser() 메서드 실행");
         String email = requestDto.getNewEmail();
         String password = this.passwordEncoder.encode(requestDto.getPassword());
         if (!this.passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
@@ -108,6 +123,7 @@ public class UserService {
      */
     @Transactional
     public void deleteUser(User user, UserDeleteRequestDto requestDto) throws CommonException {
+        log.trace("deleteUser() 메서드 실행");
         if (!Objects.equals(user.getEmail(), requestDto.getEmail())) {
             throw new CommonException(ExceptionCode.FAILED_DELETE_USER, new CommonException(ExceptionCode.NOT_MY_ACCOUNT));
         }
@@ -121,7 +137,8 @@ public class UserService {
     }
 
     public String createToken(UserCUResponseDto responseDto) throws UnsupportedEncodingException {
-        return jwtUtil.createToken(responseDto.getId(), responseDto.getEmail(), responseDto.getUsername());
+        log.trace("createToken() 메서드 실행");
+        return jwtUtil.createToken(responseDto.getId(), responseDto.getEmail(), responseDto.getUsername(), responseDto.getRole());
     }
 
 }

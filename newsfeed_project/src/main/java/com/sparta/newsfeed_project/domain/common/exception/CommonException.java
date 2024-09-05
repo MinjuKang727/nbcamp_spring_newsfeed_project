@@ -1,6 +1,8 @@
 package com.sparta.newsfeed_project.domain.common.exception;
 
-public class CommonException extends Throwable {
+import java.io.IOException;
+
+public class CommonException extends Exception {
     private ExceptionCode code;
     private Throwable e;
 

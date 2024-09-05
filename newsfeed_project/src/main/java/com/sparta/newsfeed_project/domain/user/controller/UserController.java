@@ -1,16 +1,14 @@
 package com.sparta.newsfeed_project.domain.user.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.newsfeed_project.auth.security.UserDetailsImpl;
 import com.sparta.newsfeed_project.domain.common.ApiResponse;
 import com.sparta.newsfeed_project.domain.common.exception.CommonException;
 import com.sparta.newsfeed_project.domain.common.exception.ExceptionCode;
-import com.sparta.newsfeed_project.domain.user.dto.request.UserDeleteRequestDto;
 import com.sparta.newsfeed_project.domain.user.dto.request.UserCreateRequestDto;
+import com.sparta.newsfeed_project.domain.user.dto.request.UserDeleteRequestDto;
 import com.sparta.newsfeed_project.domain.user.dto.request.UserUpdateRequestDto;
-import com.sparta.newsfeed_project.domain.user.dto.response.UserReadResponseDto;
 import com.sparta.newsfeed_project.domain.user.dto.response.UserCUResponseDto;
+import com.sparta.newsfeed_project.domain.user.dto.response.UserReadResponseDto;
 import com.sparta.newsfeed_project.domain.user.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolationException;
@@ -19,18 +17,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
-import java.util.List;
-import java.util.Map;
 
-@Slf4j
+@Slf4j(topic = "UserController")
 @Validated
 @RestController
 @RequiredArgsConstructor
@@ -40,12 +33,11 @@ public class UserController {
     /**
      * 회원 가입
      * @param requestDto : 회원 가입 정보를 담은 객체
-     * @param bindingResult : Validation 에러를 담은 객체
      * @return 회원 가입 결과
      */
     @PostMapping("/users/signup")
     public ApiResponse<UserCUResponseDto> signup(@RequestBody @Valid UserCreateRequestDto requestDto, HttpServletResponse response) throws CommonException, ConstraintViolationException {
-        log.info(":::UserController - 회원 가입:::");
+        log.info(":::회원 가입:::");
         try {
             UserCUResponseDto responseDto = this.userService.signup(requestDto);
             String bearerToken = this.userService.createToken(responseDto);
@@ -67,7 +59,7 @@ public class UserController {
      */
     @GetMapping("/users/{userId}")
     public ApiResponse<UserReadResponseDto> getUser(@PathVariable long userId) throws CommonException {
-        log.info(":::UserController - 프로필 조회 (user id : {}):::", userId);
+        log.info(":::프로필 조회 (user id : {}):::", userId);
 
         UserReadResponseDto responseDto = this.userService.getUser(userId);
         return ApiResponse.createSuccess("프로필 조회 성공", HttpStatus.OK.value(), responseDto);
@@ -81,7 +73,7 @@ public class UserController {
      */
     @PutMapping("/users")
     public ApiResponse<UserCUResponseDto> updateUser(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserUpdateRequestDto requestDto, HttpServletResponse response) throws CommonException {
-        log.info(":::UserController - 회원 정보 수정:::");
+        log.info(":::회원 정보 수정:::");
         try {
             UserCUResponseDto responseDto = this.userService.updateUser(userDetails.getUser(), requestDto);
             String bearerToken = this.userService.createToken(responseDto);
@@ -102,7 +94,7 @@ public class UserController {
      */
     @DeleteMapping("/users")
     public ApiResponse<Void> deleteUser(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserDeleteRequestDto requestDto) throws CommonException {
-        log.info(":::UserController - 회원 탈퇴:::");
+        log.info(":::회원 탈퇴:::");
         this.userService.deleteUser(userDetails.getUser(), requestDto);
 
         return ApiResponse.createSuccess("회원 탈퇴 성공", HttpStatus.OK.value(), null);

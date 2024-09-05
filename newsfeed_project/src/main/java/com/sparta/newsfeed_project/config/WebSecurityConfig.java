@@ -1,6 +1,7 @@
 package com.sparta.newsfeed_project.config;
 
 import com.sparta.newsfeed_project.auth.jwt.*;
+import com.sparta.newsfeed_project.auth.security.NAuthenticationEntryPoint;
 import com.sparta.newsfeed_project.auth.security.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -65,6 +66,12 @@ public class WebSecurityConfig {
 
         httpSecurity.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
         httpSecurity.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
+//        httpSecurity.exceptionHandling(exceptionHandling ->
+//                exceptionHandling
+//                        .authenticationEntryPoint(new NAuthenticationEntryPoint())
+//                        .accessDeniedHandler(new NAccessDeniedHandler())
+//                );
 
         return httpSecurity.build();
     }

@@ -28,18 +28,23 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Post> posts;
     @OneToMany(mappedBy = "followingUser")
     private List<Friend> friends;
 
-    public User(String username, String email, String password) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-    }
+//    public User(String username, String email, String password, UserRole role) {
+//        this.username = username;
+//        this.email = email;
+//        this.password = password;
+//        this.role = role;
+//    }
 
-    public User(UserCreateRequestDto requestDto, String password) {
+    public User(UserCreateRequestDto requestDto, String password, UserRole role) {
         this.username = requestDto.getUsername();
         this.email = requestDto.getEmail();
         this.password = password;
@@ -47,6 +52,7 @@ public class User {
         if (requestDto.getImageSrc() != null) {
             imageSrc = requestDto.getImageSrc();
         }
+        this.role = role;
     }
 
     public void updateUser(UserUpdateRequestDto requestDto, String password) {
