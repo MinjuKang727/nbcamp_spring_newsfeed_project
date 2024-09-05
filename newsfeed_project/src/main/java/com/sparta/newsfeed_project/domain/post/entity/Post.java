@@ -14,6 +14,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
+@Table(name="posts")
 public class Post extends Timestamped {
     // 게시글
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +28,7 @@ public class Post extends Timestamped {
     @Setter
     @Getter
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "userId", nullable = false)
     private User user;
 
     // 댓글

@@ -4,6 +4,8 @@ import com.sparta.newsfeed_project.auth.security.UserDetailsImpl;
 import com.sparta.newsfeed_project.domain.post.dto.*;
 import com.sparta.newsfeed_project.domain.post.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -42,10 +44,11 @@ public class PostController {
 
     //뉴스피스 조회 친구로 등록된 유저의 모든 게시물을 조회하는 기능.
     @GetMapping("/posts/friends")
-    public ResponseEntity<List<NewsfeedResponseDto>> getNewsfeedList(@AuthenticationPrincipal UserDetailsImpl userDetails,
+    public ResponseEntity<Page<NewsfeedResponseDto>> getNewsfeedList(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                      @RequestParam(defaultValue = "0", required = false) int pageNo,
-                                                                     @RequestParam(defaultValue = "10",required = false) int size){
-        return ResponseEntity.ok(postService.getNewsfeedList(userDetails,pageNo,size));
+                                                                     @RequestParam(defaultValue = "10",required = false) int size,
+                                                                     @RequestParam(defaultValue = "createdAt",required = false)Sort sort){
+        return ResponseEntity.ok(postService.getNewsfeedList(userDetails,pageNo,size, sort));
     }
 
     //게시글 수정

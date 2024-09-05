@@ -12,7 +12,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,7 +48,9 @@ public class PostService {
                 //게시물 작성자
                 userDto,
                 savedPost.getTitle(),
-                savedPost.getContent()
+                savedPost.getContent(),
+                savedPost.getCreatedAt(),
+                savedPost.getModifiedAt()
         );
     }
 
@@ -102,17 +103,20 @@ public class PostService {
     }
 
     //뉴스피드 조회
-    public List<NewsfeedResponseDto> getNewsfeedList(UserDetailsImpl userDetails,int pageNo, int size) {
+    public Page<NewsfeedResponseDto> getNewsfeedList(UserDetailsImpl userDetails,int pageNo, int size, Sort sort) {
         Pageable pageable = PageRequest.of(pageNo, size, Sort.by("createdAt").descending());
         // 팔로우 한 유저만 제한. = 뉴스피드
-     Page<NewsfeedResponseDto> newsfeeds = postRepository.findAll(pageable).map(NewsfeedResponseDto::new);
 
         //내가 팔로우 하고 있는 아이디 들의 게시물 모음
         List<Long> followingIds = getFollowingUserIdList(userDetails.getUser());
-        List<Post> followingIdsPost = postRepository.findAllById(followingIds);
+        followingIds.add(userDetails.getMyId());
+        Page<Post> followingIdsPost = postRepository.findByUserIdIn(followingIds,pageable);
 
+        //Stream Api
+        Page<NewsfeedResponseDto> result = followingIdsPost.map(post -> {
+            return new NewsfeedResponseDto(post);
+        });
 
-
-        return newsfeeds.getContent();
+     return result;
     }
 }

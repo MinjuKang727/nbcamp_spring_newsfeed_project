@@ -2,7 +2,6 @@ package com.sparta.newsfeed_project.auth.jwt;
 
 
 import com.sparta.newsfeed_project.auth.security.UserDetailsServiceImpl;
-import com.sparta.newsfeed_project.auth.jwt.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -32,11 +31,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         if (StringUtils.hasText(tokenValue)) {
             tokenValue = jwtUtil.substringToken(tokenValue);
-            log.info(tokenValue);
 
             if (!jwtUtil.validateToken(tokenValue)) {
-                log.error("Token Error");
-
+                return;
             }
 
             Claims info = jwtUtil.getUserInfoFromToken(tokenValue);

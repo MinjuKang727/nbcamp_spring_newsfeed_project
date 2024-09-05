@@ -16,13 +16,6 @@ public class UserDetailsImpl implements UserDetails {
         this.user = user;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public Long getMyId() { return user.getId(); }
-    public String getEmail() { return user.getEmail(); }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         String authority = "ROLE_USER";
@@ -33,6 +26,12 @@ public class UserDetailsImpl implements UserDetails {
 
         return authorities;
     }
+
+    public User getUser() {
+        return user;
+    }
+    public Long getMyId() { return user.getId(); }
+    public String getEmail() { return user.getEmail(); }
 
     @Override
     public String getPassword() {
