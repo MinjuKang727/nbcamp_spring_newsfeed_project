@@ -37,7 +37,6 @@ public class PostService {
     // 게시물 등록
     @Transactional
     public PostSaveResponseDto savePost(UserDetailsImpl userDetails, PostSaveRequestDto postSaveRequestDto) {
-        System.out.println("11111"+ userDetails.getUser().getId());
         //게시물 생성
         Post post = new Post(postSaveRequestDto.getTitle(), postSaveRequestDto.getContent(),userDetails.getUser());
         //게시물 저장
@@ -103,13 +102,15 @@ public class PostService {
     }
 
     //뉴스피드 조회
-    public Page<NewsfeedResponseDto> getNewsfeedList(UserDetailsImpl userDetails,int pageNo, int size, Sort sort) {
+    public Page<NewsfeedResponseDto> getNewsfeedList(UserDetailsImpl userDetails,int pageNo, int size) {
         Pageable pageable = PageRequest.of(pageNo, size, Sort.by("createdAt").descending());
         // 팔로우 한 유저만 제한. = 뉴스피드
 
-        //내가 팔로우 하고 있는 아이디 들의 게시물 모음
+        //내가 팔로우 하고 있는 아이디 들의 게시물 모음 + 내 아이디
         List<Long> followingIds = getFollowingUserIdList(userDetails.getUser());
         followingIds.add(userDetails.getMyId());
+
+        //위에서 정리한 유저들의 Id로 Post 를 찾음
         Page<Post> followingIdsPost = postRepository.findByUserIdIn(followingIds,pageable);
 
         //Stream Api
