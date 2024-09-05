@@ -43,12 +43,11 @@ public class PostController {
     }
 
     //뉴스피스 조회 친구로 등록된 유저의 모든 게시물을 조회하는 기능.
-    @GetMapping("/posts/friends")
+    @GetMapping("/newsfeed")
     public ResponseEntity<Page<NewsfeedResponseDto>> getNewsfeedList(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                      @RequestParam(defaultValue = "0", required = false) int pageNo,
-                                                                     @RequestParam(defaultValue = "10",required = false) int size,
-                                                                     @RequestParam(defaultValue = "createdAt",required = false)Sort sort){
-        return ResponseEntity.ok(postService.getNewsfeedList(userDetails,pageNo,size, sort));
+                                                                     @RequestParam(defaultValue = "10",required = false) int size){
+        return ResponseEntity.ok(postService.getNewsfeedList(userDetails,pageNo,size));
     }
 
     //게시글 수정
