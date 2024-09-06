@@ -7,12 +7,14 @@ import com.sparta.newsfeed_project.domain.comment.repository.CommentRepository;
 import com.sparta.newsfeed_project.domain.post.entity.Post;
 import com.sparta.newsfeed_project.domain.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j(topic = "CommentService")
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -81,8 +83,9 @@ public class CommentService {
         Comment comment = commentRepository.findById(comment_Id)
                 .orElseThrow(() -> new NullPointerException("댓글을 찾을 수 없습니다."));
 
+        log.info(comment.getUser().getId()+", "+post.getUser().getId() + ", " +userDetails.getMyId());
         //게시물의 작성자 or 댓글의 작성자인지 확인
-        if (!comment.getUser().getId().equals(userDetails.getMyId()) || !post.getUser().getId().equals(userDetails.getMyId())){
+        if (!comment.getUser().getId().equals(userDetails.getMyId()) && !post.getUser().getId().equals(userDetails.getMyId())){
                 throw new RuntimeException("댓글 수정은 댓글의 작성자 혹은 게시글의 작성자만 가능합니다.");
                 }
 
@@ -106,7 +109,7 @@ public class CommentService {
                 .orElseThrow(() -> new NullPointerException("댓글을 찾을 수 없습니다."));
 
         //게시물의 작성자 or 댓글의 작성자인지 확인
-        if (!comment.getUser().getId().equals(userDetails.getMyId()) || !post.getUser().getId().equals(userDetails.getMyId())){
+        if (!comment.getUser().getId().equals(userDetails.getMyId()) && !post.getUser().getId().equals(userDetails.getMyId())){
             throw new RuntimeException("댓글 삭제는 댓글의 작성자 혹은 게시글의 작성자만 가능합니다.");
         }
 

@@ -1,8 +1,13 @@
 package com.sparta.newsfeed_project.domain.post.controller;
 
 import com.sparta.newsfeed_project.auth.security.UserDetailsImpl;
+import com.sparta.newsfeed_project.domain.common.exception.CommonException;
+import com.sparta.newsfeed_project.domain.common.exception.ExceptionCode;
 import com.sparta.newsfeed_project.domain.post.dto.*;
 import com.sparta.newsfeed_project.domain.post.service.PostService;
+import com.sparta.newsfeed_project.domain.token.Token;
+import com.sparta.newsfeed_project.domain.token.TokenBlacklistService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -11,6 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.io.IOException;
 import java.util.List;
 
 //게시글 컨트롤러
@@ -27,16 +33,20 @@ public class PostController {
     //        - 다른 사람의 뉴스피드는 볼 수 없습니다. - 예외처리.
 
     private final PostService postService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     //게시글 등록
     @PostMapping("/posts")
-    public ResponseEntity<PostSaveResponseDto> savePost(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                        @RequestBody PostSaveRequestDto postSaveRequestDto){
-        System.out.println("11111"+ userDetails.getMyId()+ userDetails.getEmail()+ userDetails.getUsername()+userDetails.getUser() + userDetails.getMyId());
-        return ResponseEntity.ok(postService.savePost(userDetails,postSaveRequestDto));
+    public ResponseEntity<PostSaveResponseDto> savePost(HttpServletRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                        @RequestBody PostSaveRequestDto postSaveRequestDto) throws IOException, CommonException {
+        if (!this.tokenBlacklistService.isTokenBlackListed(request)) {
+            return ResponseEntity.ok(postService.savePost(userDetails,postSaveRequestDto));
+        }
+
+        throw new CommonException(ExceptionCode.FAILED_SAVE_POST, new CommonException(ExceptionCode.EXPIRED_JWT_TOKEN));
     }
 
-    //게시글 조회 작성자 Id 로 게시글 전체 조회 아이디를 빼고 상세조회를 작성자 Id를 넣어야할지 얘기해볼것.
+    //게시글 조회
     @GetMapping("/posts")
     public ResponseEntity<List<PostSimpleResponseDto>> getPostList (){
         return ResponseEntity.ok(postService.getPostList());
@@ -44,25 +54,38 @@ public class PostController {
 
     //뉴스피스 조회 친구로 등록된 유저의 모든 게시물을 조회하는 기능.
     @GetMapping("/newsfeed")
-    public ResponseEntity<Page<NewsfeedResponseDto>> getNewsfeedList(@AuthenticationPrincipal UserDetailsImpl userDetails,
+    public ResponseEntity<Page<NewsfeedResponseDto>> getNewsfeedList(HttpServletRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                      @RequestParam(defaultValue = "0", required = false) int pageNo,
                                                                      @RequestParam(defaultValue = "10",required = false) int size,
-                                                                     @RequestParam(defaultValue = "createdAt",required = false) String sort){
-        return ResponseEntity.ok(postService.getNewsfeedList(userDetails,pageNo,size,sort));
+                                                                     @RequestParam(defaultValue = "createdAt",required = false) String sort) throws IOException, CommonException {
+        if (!this.tokenBlacklistService.isTokenBlackListed(request)) {
+            return ResponseEntity.ok(postService.getNewsfeedList(userDetails,pageNo,size,sort));
+        }
+
+        throw new CommonException(ExceptionCode.FAILED_GET_NEWSFEEDLIST, new CommonException(ExceptionCode.EXPIRED_JWT_TOKEN));
     }
 
     //게시글 수정
     @PutMapping("/posts/{postId}")
-    public ResponseEntity<PostUpdateResponseDto> updatePost (@AuthenticationPrincipal UserDetailsImpl userDetails,
+    public ResponseEntity<PostUpdateResponseDto> updatePost (HttpServletRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails,
                                                              @PathVariable Long postId,
-                                                             @RequestBody PostUpdateRequestDto postUpdateRequestDto){
-        return ResponseEntity.ok(postService.updatePost(userDetails,postId,postUpdateRequestDto));
+                                                             @RequestBody PostUpdateRequestDto postUpdateRequestDto) throws IOException, CommonException {
+        if (!this.tokenBlacklistService.isTokenBlackListed(request)) {
+            return ResponseEntity.ok(postService.updatePost(userDetails,postId,postUpdateRequestDto));
+        }
 
+        throw new CommonException(ExceptionCode.FAILED_UPDATE_POST, new CommonException(ExceptionCode.EXPIRED_JWT_TOKEN));
     }
+
     //게시글 삭제
     @DeleteMapping("/posts/{postId}")
-    public void deletePost(@AuthenticationPrincipal UserDetailsImpl userDetails,@PathVariable Long postId){
-        postService.deletePost(userDetails,postId);
+    public void deletePost(HttpServletRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails,@PathVariable Long postId) throws IOException, CommonException {
+        if (!this.tokenBlacklistService.isTokenBlackListed(request)) {
+            this.postService.deletePost(userDetails,postId);
+            return;
+        }
+
+        throw new CommonException(ExceptionCode.FAILED_DELETE_POST, new CommonException(ExceptionCode.EXPIRED_JWT_TOKEN));
     }
 
 
