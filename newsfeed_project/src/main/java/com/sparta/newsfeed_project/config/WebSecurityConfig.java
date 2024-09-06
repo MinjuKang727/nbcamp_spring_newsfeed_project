@@ -1,8 +1,14 @@
 package com.sparta.newsfeed_project.config;
 
-import com.sparta.newsfeed_project.auth.jwt.*;
+import com.sparta.newsfeed_project.auth.UserLogoutHandler;
+import com.sparta.newsfeed_project.auth.jwt.JwtAuthenticationFilter;
+import com.sparta.newsfeed_project.auth.jwt.JwtAuthorizationFilter;
+import com.sparta.newsfeed_project.auth.jwt.JwtUtil;
 import com.sparta.newsfeed_project.auth.security.UserDetailsServiceImpl;
+import com.sparta.newsfeed_project.domain.token.TokenBlacklistService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,9 +18,14 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+@Slf4j(topic = "WebSecurityConfig")
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true)
@@ -22,6 +33,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig {
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
+    private final TokenBlacklistService tokenBlacklistService;
     private final AuthenticationConfiguration authenticationConfiguration;
 
     @Bean
@@ -42,6 +54,18 @@ public class WebSecurityConfig {
     }
 
     @Bean
+    public AuthenticationEntryPoint unauthorizedEntryPoint() {
+        return (request, response, authException) ->
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return (request, response, accessDeniedException) ->
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, accessDeniedException.getMessage());
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf(csrf -> csrf.disable());
 
@@ -53,7 +77,27 @@ public class WebSecurityConfig {
                 authorizeHttpRequests
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/users/**").permitAll()
+                        .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
+        );
+
+        httpSecurity.addFilterBefore(jwtAuthorizationFilter(), LogoutFilter.class)
+                .logout(logout ->
+                    logout
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/users/logout", "POST"))
+                        .addLogoutHandler(new UserLogoutHandler(tokenBlacklistService))
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                                response.setStatus(HttpServletResponse.SC_OK);
+                                response.getWriter().write("Logout Success");
+                        })
+                        .logoutSuccessUrl("/")
+                        .invalidateHttpSession(true)
+        );
+
+        httpSecurity.exceptionHandling(handler ->
+                handler
+                    .authenticationEntryPoint(unauthorizedEntryPoint())
+                    .accessDeniedHandler(accessDeniedHandler())
         );
 
         httpSecurity.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);

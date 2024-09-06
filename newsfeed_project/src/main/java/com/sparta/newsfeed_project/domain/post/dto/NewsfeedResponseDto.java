@@ -9,13 +9,14 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 public class NewsfeedResponseDto {
-
+    private final Long postUserId;
     private final String title;
     private final String content;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
     public NewsfeedResponseDto(Post post) {
+        this.postUserId =post.getUser().getId();
         this.title = post.getTitle();
         this.content = post.getContent();
         this.createdAt = post.getCreatedAt();

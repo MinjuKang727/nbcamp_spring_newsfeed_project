@@ -9,9 +9,10 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 public class PostSimpleResponseDto {
+    private final Long postId;
     private final String title;
     private final String content;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
-
+    private final Long likesCount;
 }

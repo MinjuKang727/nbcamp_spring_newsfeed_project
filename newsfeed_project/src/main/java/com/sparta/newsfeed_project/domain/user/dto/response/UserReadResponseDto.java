@@ -1,6 +1,5 @@
 package com.sparta.newsfeed_project.domain.user.dto.response;
 
-import jakarta.persistence.GeneratedValue;
 import lombok.Getter;
 
 @Getter

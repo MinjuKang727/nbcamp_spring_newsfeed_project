@@ -2,21 +2,20 @@ package com.sparta.newsfeed_project.auth.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.newsfeed_project.auth.security.UserDetailsImpl;
-import com.sparta.newsfeed_project.auth.jwt.JwtUtil;
-import com.sparta.newsfeed_project.domain.user.dto.request.LoginRequestDto;
+import com.sparta.newsfeed_project.domain.token.TokenBlacklistService;
+import com.sparta.newsfeed_project.domain.user.dto.request.UserLoginRequestDto;
+import com.sparta.newsfeed_project.domain.user.entity.UserRole;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 
 @Slf4j(topic = "로그인 및 JWT 생성")
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -32,7 +31,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         log.info("로그인 시도");
 
         try {
-            LoginRequestDto requestDto = new ObjectMapper().readValue(request.getInputStream(), LoginRequestDto.class);
+            UserLoginRequestDto requestDto = new ObjectMapper().readValue(request.getInputStream(), UserLoginRequestDto.class);
 
             return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -45,6 +44,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             log.error(e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
+
     }
 
     @Override
@@ -54,16 +54,15 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         Long myId = ((UserDetailsImpl) authResult.getPrincipal()).getMyId();
         String email = ((UserDetailsImpl) authResult.getPrincipal()).getEmail();
         String username = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
+        UserRole role = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getRole();
 
-
-        String token = jwtUtil.createToken(myId, email, username);
-        token = URLEncoder.encode(token, "utf-8").replaceAll("\\+", "%20");
+        String token = jwtUtil.createToken(myId, email, username, role);
 
         if (token != null) {
             response.addHeader(jwtUtil.AUTHORIZATION_HEADER, token);
             response.setStatus(200);
         } else {
-            response.setStatus(HttpStatus.BAD_REQUEST.value());
+            response.getWriter().write("Create Token Error");
         }
 
     }
@@ -72,6 +71,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
         log.info("로그인 실패");
         response.setStatus(401);
+        response.getWriter().write("Fail to Login");
     }
 
 

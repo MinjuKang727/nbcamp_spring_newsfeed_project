@@ -1,6 +1,7 @@
 package com.sparta.newsfeed_project.domain.comment.entity;
 
 import com.sparta.newsfeed_project.domain.common.entity.Timestamped;
+import com.sparta.newsfeed_project.domain.like.entity.Like;
 import com.sparta.newsfeed_project.domain.post.entity.Post;
 import com.sparta.newsfeed_project.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -18,34 +20,33 @@ public class Comment extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
 
-//    @NotBlank
-//    private String title;
-    @NotBlank
+
+
     private String content;
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "postId", nullable = false)
+    @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Like> likes;
 
     //생성자
     public Comment(String content, Post post, User user) {
         this.content = content;
         this.post = post;
         this.user = user;
-        this.createdAt = LocalDateTime.now();
+
     }
 
     public void update (String content){
         this.content =content;
-        this.modifiedAt = LocalDateTime.now();
     }
 
 

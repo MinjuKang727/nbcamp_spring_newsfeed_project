@@ -1,10 +1,12 @@
 package com.sparta.newsfeed_project.domain.comment.controller;
 
 
+import com.sparta.newsfeed_project.auth.security.UserDetailsImpl;
 import com.sparta.newsfeed_project.domain.comment.dto.*;
 import com.sparta.newsfeed_project.domain.comment.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,15 +34,18 @@ public class CommentController {
 
     // 댓글 수정
     @PutMapping("/posts/{post_id}/comments/{comment_id}")
-    public ResponseEntity<CommentUpdateResponseDto> updateComment (@PathVariable Long post_id,
+    public ResponseEntity<CommentUpdateResponseDto> updateComment (@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                                   @PathVariable Long post_id,
                                                                    @PathVariable Long comment_id,
                                                                    @RequestBody CommentUpdateRequestDto commentUpdateRequestDto){
-        return ResponseEntity.ok(commentService.updateComment(post_id,comment_id,commentUpdateRequestDto));
+        return ResponseEntity.ok(commentService.updateComment(userDetails,post_id,comment_id,commentUpdateRequestDto));
     }
 
     //댓글 삭제
     @DeleteMapping("/posts/{post_id}/comments/{comment_id}")
-    public void deleteComment(@PathVariable Long post_id, @PathVariable Long comment_id){
-        commentService.deleteComment(post_id,comment_id);
+    public void deleteComment(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                              @PathVariable Long post_id,
+                              @PathVariable Long comment_id){
+        commentService.deleteComment(userDetails,post_id,comment_id);
     }
 }
