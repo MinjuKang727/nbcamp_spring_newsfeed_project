@@ -21,9 +21,10 @@ public class CommentController {
     //댓글 등록
     //튜터님께 여쭤본 후 URI 수정할 수 있도록
     @PostMapping("/posts/{post_id}/comments")
-    public ResponseEntity<CommentSaveResponseDto> saveComment (@PathVariable Long post_id,
+    public ResponseEntity<CommentSaveResponseDto> saveComment (@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                               @PathVariable Long post_id,
                                                                @RequestBody CommentSaveRequestDto commentSaveRequestDto){
-        return ResponseEntity.ok(commentService.saveComment(post_id,commentSaveRequestDto));
+        return ResponseEntity.ok(commentService.saveComment(userDetails.getUser(), post_id,commentSaveRequestDto));
     }
 
     //댓글 조회
