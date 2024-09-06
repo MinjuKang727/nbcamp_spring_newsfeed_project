@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +35,10 @@ public class FriendService {
     }
 
     public FollowedResponseDto followUser(User me, String followingEmail) {
+        if (Objects.equals(me.getEmail(), followingEmail)) {
+            throw new IllegalArgumentException("자신의 계정은 팔로우 할 수 없습니다.");
+        }
+        
         User followingUser = userRepository.findUserByEmail(followingEmail).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않는 사용자입니다.")
         );
