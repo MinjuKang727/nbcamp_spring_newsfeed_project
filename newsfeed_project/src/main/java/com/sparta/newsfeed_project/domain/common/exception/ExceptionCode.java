@@ -8,6 +8,28 @@ public enum ExceptionCode {
     FAILED_VIEW_USER("회원 조회 실패"),
     FAILED_UPDATE_USER("회원 정보 수정 실패"),
     FAILED_DELETE_USER("회원 탈퇴 실패"),
+
+    FAILED_SAVE_COMMENT("댓글 등록 실패"),
+    FAILED_UPDATE_COMMENT("댓글 수정 실패"),
+    FAILED_DELETE_COMMENT("댓글 삭제 실패"),
+
+    FAILED_FOLLOW_USER("팔로잉 실패"),
+    FAILED_GET_FOLLOWLIST("팔로워 목록 조회 실패"),
+    FAILED_ALLOW_FOLLOWING("팔로우 수락 실패"),
+    FAILED_UNFOLLOW("팔로우 취소 실패"),
+
+    FAILED_LIKE_POST("게시물 좋아요 실패"),
+    FAILED_GET_LIKE_POSTLIST("좋아요 표시한 게시물을 찾을 수 없습니다."),
+    FAILED_LIKE_COMMENT("댓글 좋아요 실패"),
+    FAILED_GET_LIKE_COMMENTLIST("좋아요 표시한 댓글을 찾을 수 없습니다."),
+    FAILED_UNLIKE_POST("게시물 좋아요 취소 실패"),
+    FAILED_UNLIKE_COMMENT("댓글 좋아요 취소 실패"),
+
+    FAILED_SAVE_POST("게시물 등록 실패"),
+    FAILED_GET_NEWSFEEDLIST("뉴스피드 목록 조회 실패"),
+    FAILED_UPDATE_POST("게시물 수정 실패"),
+    FAILED_DELETE_POST("게시물 삭제 실패"),
+
     ALREADY_EXIST_EMAIL("해당 이메일의 사용자가 이미 존재합니다."),
     ALREADY_EXIST_PHONE_NUMBER("해당 휴대폰 번호의 사용자가 이미 존재합니다."),
     USER_NOT_FOUND("해당 사용자를 찾을 수 없습니다."),

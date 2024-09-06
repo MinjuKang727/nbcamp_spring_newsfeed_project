@@ -36,6 +36,7 @@ public class TokenBlacklistService {
     public boolean isTokenBlackListed(HttpServletRequest request) throws IOException {
         log.info("토큰 not 블랙리스트 검증");
         String token = jwtUtil.getDecodedToken(request);
+
         return this.tokenBlacklistRepository.existsByToken(token);
     }
 

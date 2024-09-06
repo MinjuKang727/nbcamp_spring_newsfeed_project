@@ -55,14 +55,18 @@ public class WebSecurityConfig {
 
     @Bean
     public AuthenticationEntryPoint unauthorizedEntryPoint() {
-        return (request, response, authException) ->
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
+        return (request, response, authException) -> {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write(authException.getMessage());
+        };
     }
 
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
-        return (request, response, accessDeniedException) ->
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, accessDeniedException.getMessage());
+        return (request, response, accessDeniedException) -> {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write(accessDeniedException.getMessage());
+        };
     }
 
     @Bean
