@@ -84,6 +84,7 @@ public class CommentService {
         Comment comment = commentRepository.findById(comment_Id)
                 .orElseThrow(() -> new NullPointerException("댓글을 찾을 수 없습니다."));
 
+        log.info(comment.getUser().getId()+", "+post.getUser().getId() + ", " +userDetails.getMyId());
         //게시물의 작성자 or 댓글의 작성자인지 확인
         if (!comment.getUser().getId().equals(userDetails.getUser().getId()) && !post.getUser().getId().equals(userDetails.getUser().getId())){
                 throw new RuntimeException("댓글 수정은 댓글의 작성자 혹은 게시글의 작성자만 가능합니다.");
