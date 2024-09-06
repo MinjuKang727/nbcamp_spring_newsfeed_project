@@ -65,11 +65,11 @@ public class UserService {
             role = UserRole.ADMIN;
         }
 
-            // 사용자 등록
-            User user = new User(requestDto, password, role);
-            User savedUser = this.userRepository.saveAndFlush(user);
+        // 사용자 등록
+        User user = new User(requestDto, password, role);
+        User savedUser = this.userRepository.saveAndFlush(user);
 
-            return new UserCUResponseDto(savedUser);
+        return new UserCUResponseDto(savedUser);
     }
 
     /**

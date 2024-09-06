@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.Date;
 
 @Slf4j(topic = "TokenBlacklistService")
@@ -21,7 +22,7 @@ public class TokenBlacklistService {
     }
 
     @Transactional
-    public void addTokenToBlackList(HttpServletRequest request) {
+    public void addTokenToBlackList(HttpServletRequest request) throws IOException {
         log.info("토큰 블랙리스트에 추가");
 
         String token = jwtUtil.getDecodedToken(request);
@@ -32,7 +33,7 @@ public class TokenBlacklistService {
         }
     }
 
-    public boolean isTokenBlackListed(HttpServletRequest request) {
+    public boolean isTokenBlackListed(HttpServletRequest request) throws IOException {
         log.info("토큰 not 블랙리스트 검증");
         String token = jwtUtil.getDecodedToken(request);
         return this.tokenBlacklistRepository.existsByToken(token);

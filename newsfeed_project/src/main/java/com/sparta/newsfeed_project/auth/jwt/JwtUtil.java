@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -85,7 +86,7 @@ public class JwtUtil {
      * @param token : 토큰값
      * @return : 토큰 검증 여부
      */
-    public boolean validateToken(String token) {
+    public boolean validateToken(String token) throws IOException {
         try {
             token = token.replaceAll("\\s", "");
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
@@ -93,14 +94,17 @@ public class JwtUtil {
             return true;
         } catch ( SecurityException | MalformedJwtException | SignatureException e) {
             logger.error("Invalid JWT signature, 유효하지 않은 JWT 서명입니다.");
+            throw new IOException("Invalid JWT signature, 유효하지 않은 JWT 서명입니다.");
         } catch (ExpiredJwtException e) {
             logger.error("Expired JWT token, 만료된 JWT token입니다.");
+            throw new IOException("Expired JWT token, 만료된 JWT token입니다.");
         } catch (UnsupportedJwtException e) {
             logger.error("Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.");
+            throw new IOException("Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.");
         } catch (IllegalArgumentException e) {
             logger.error("JWT claims is empty, 잘못된 JWT 토큰 입니다.");
+            throw new IOException("JWT claims is empty, 잘못된 JWT 토큰 입니다.");
         }
-        return false;
     }
 
 
@@ -144,15 +148,12 @@ public class JwtUtil {
         throw new NullPointerException("Not Found Token");
     }
 
-    public String getDecodedToken(HttpServletRequest request) {
+    public String getDecodedToken(HttpServletRequest request) throws IOException {
         String tokenValue = this.getTokentFromRequest(request);
 
         if (StringUtils.hasText(tokenValue)) {
             tokenValue = this.substringToken(tokenValue);
-
-            if (!this.validateToken(tokenValue)) {
-                log.error("Invalidate Token");
-            }
+            this.validateToken(tokenValue);
 
             return tokenValue;
         }

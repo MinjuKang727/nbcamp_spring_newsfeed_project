@@ -12,7 +12,6 @@ import com.sparta.newsfeed_project.domain.user.dto.response.UserCUResponseDto;
 import com.sparta.newsfeed_project.domain.user.dto.response.UserReadResponseDto;
 import com.sparta.newsfeed_project.domain.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +21,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 @Slf4j(topic = "UserController")
@@ -30,12 +30,10 @@ import java.io.UnsupportedEncodingException;
 public class UserController {
     private final UserService userService;
     private final TokenBlacklistService tokenBlacklistService;
-    private final JwtUtil jwtUtil;
 
-    public UserController(UserService userService, TokenBlacklistService tokenBlacklistService, JwtUtil jwtUtil) {
+    public UserController(UserService userService, TokenBlacklistService tokenBlacklistService) {
         this.userService = userService;
         this.tokenBlacklistService = tokenBlacklistService;
-        this.jwtUtil = jwtUtil;
     }
 
     /**
@@ -44,7 +42,7 @@ public class UserController {
      * @return 회원 가입 결과
      */
     @PostMapping("/users/signup")
-    public ResponseEntity<UserCUResponseDto> signup(@RequestBody @Valid UserCreateRequestDto requestDto, HttpServletResponse response) throws CommonException, ConstraintViolationException {
+    public ResponseEntity<UserCUResponseDto> signup(@RequestBody @Valid UserCreateRequestDto requestDto) throws CommonException, ConstraintViolationException {
         log.info(":::회원 가입:::");
         try {
             UserCUResponseDto responseDto = this.userService.signup(requestDto);
@@ -78,7 +76,7 @@ public class UserController {
      * @return 수정된 유저 사용자 객체를 담은 ResponseEntity
      */
     @PutMapping("/users")
-    public ResponseEntity<UserCUResponseDto> updateUser(HttpServletRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserUpdateRequestDto requestDto) throws CommonException {
+    public ResponseEntity<UserCUResponseDto> updateUser(HttpServletRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserUpdateRequestDto requestDto) throws CommonException, IOException {
         log.info(":::회원 정보 수정:::");
         if (!this.tokenBlacklistService.isTokenBlackListed(request)) {
             try {
@@ -102,7 +100,7 @@ public class UserController {
      * @return : 회원 탈퇴 결과
      */
     @DeleteMapping("/users")
-    public ResponseEntity<String> deleteUser(HttpServletRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserDeleteRequestDto requestDto) throws CommonException {
+    public ResponseEntity<String> deleteUser(HttpServletRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserDeleteRequestDto requestDto) throws CommonException, IOException {
         log.info(":::회원 탈퇴:::");
 
         if (!this.tokenBlacklistService.isTokenBlackListed(request)) {
