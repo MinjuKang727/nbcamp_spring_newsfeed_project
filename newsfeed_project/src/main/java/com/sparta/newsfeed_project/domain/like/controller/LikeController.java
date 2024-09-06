@@ -27,7 +27,7 @@ public class LikeController {
     private final TokenBlacklistService tokenBlacklistService;
 
     // 게시물 좋아요
-    @PostMapping("/like-post")
+    @PostMapping("/posts/{postId}/likes")
     @ResponseStatus(HttpStatus.OK)
     public void likePost(HttpServletRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody LikePostRequestDto likePostRequestDto) throws CommonException, IOException {
         if (!this.tokenBlacklistService.isTokenBlackListed(request)) {
@@ -39,7 +39,7 @@ public class LikeController {
     }
 
     // 로그인 사용자가 좋아요한 게시물 조회
-    @GetMapping("/like-post")
+    @GetMapping("/posts/likes")
     public ResponseEntity<List<LikePostResponseDto>> getLikePost(HttpServletRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException, CommonException {
         if (!this.tokenBlacklistService.isTokenBlackListed(request)) {
             return ResponseEntity.ok(this.likeService.getLikePost(userDetails.getUser()));
@@ -50,7 +50,7 @@ public class LikeController {
     }
 
     // 댓글 좋아요
-    @PostMapping("/like-comment")
+    @PostMapping("/comments/{commentId}/likes")
     @ResponseStatus(HttpStatus.OK)
     public void likeComment(HttpServletRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody LikeCommentRequestDto likeCommentRequestDto) throws IOException, CommonException {
         if (!this.tokenBlacklistService.isTokenBlackListed(request)) {
@@ -62,7 +62,7 @@ public class LikeController {
     }
 
     // 로그인 사용자가 좋아요한 댓글 조회
-    @GetMapping("/like-comment")
+    @GetMapping("/comments/likes")
     public ResponseEntity<List<LikeCommentResponseDto>> getLikeComment(HttpServletRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException, CommonException {
         if (!this.tokenBlacklistService.isTokenBlackListed(request)) {
             return ResponseEntity.ok(this.likeService.getLikeComment(userDetails.getUser()));
@@ -72,7 +72,7 @@ public class LikeController {
     }
 
     // 게시물 좋아요 취소
-    @DeleteMapping("/unlike-post")
+    @DeleteMapping("/posts/{postId}/likes")
     @ResponseStatus(HttpStatus.OK)
     public void unlikePost(HttpServletRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody LikePostRequestDto likePostRequestDto) throws IOException, CommonException {
         if (!this.tokenBlacklistService.isTokenBlackListed(request)) {
@@ -84,7 +84,7 @@ public class LikeController {
     }
 
     // 댓글 좋아요 취소
-    @DeleteMapping("/unlike-comment")
+    @DeleteMapping("/comments/{commentId}/likes")
     @ResponseStatus(HttpStatus.OK)
     public void unlikeComment(HttpServletRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody LikeCommentRequestDto likeCommentRequestDto) throws IOException, CommonException {
         if (!this.tokenBlacklistService.isTokenBlackListed(request)) {

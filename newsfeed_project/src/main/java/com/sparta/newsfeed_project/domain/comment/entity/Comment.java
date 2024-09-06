@@ -20,12 +20,8 @@ public class Comment extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-
-
     private String content;
 
-    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
@@ -48,6 +44,5 @@ public class Comment extends Timestamped {
     public void update (String content){
         this.content =content;
     }
-
 
 }

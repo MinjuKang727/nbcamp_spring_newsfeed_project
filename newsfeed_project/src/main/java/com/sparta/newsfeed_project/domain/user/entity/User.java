@@ -75,11 +75,6 @@ public class User {
         }
     }
 
-    public void addPost(Post post) {
-        posts.add(post);
-        post.setUser(this);
-    }
-
     public void delete() {
         this.isDeleted = 1;
     }

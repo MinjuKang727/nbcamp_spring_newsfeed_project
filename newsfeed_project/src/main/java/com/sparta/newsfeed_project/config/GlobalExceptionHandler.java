@@ -3,9 +3,13 @@ package com.sparta.newsfeed_project.config;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.newsfeed_project.domain.common.exception.CommonException;
+import com.sparta.newsfeed_project.domain.common.exception.LikeException;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AuthorizationServiceException;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -17,13 +21,11 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(JsonProcessingException.class)
     public ResponseEntity<String> handleJsonProcessingException(JsonProcessingException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("에러 메세지 JSON 형식 변환 오류");
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(CommonException.class)
     public ResponseEntity<String> handleCommonException(CommonException e) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -33,7 +35,23 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(LikeException.class)
+    public ResponseEntity<String> handleLikeException(LikeException e) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, String> errorMap = Map.of("message", e.getMessage());
+        return ResponseEntity.status(403).body(objectMapper.writeValueAsString(errorMap));
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    @ExceptionHandler(AuthorizationServiceException.class)
+    public ResponseEntity<String> handleAuthorizationServiceException(AuthorizationServiceException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<String> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -45,7 +63,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<String> handleConstraintViolationException(ConstraintViolationException e) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -56,7 +73,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(IOException.class)
     public ResponseEntity<String> handleIOException(IOException e) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();

@@ -6,6 +6,7 @@ import com.sparta.newsfeed_project.domain.friend.entity.Friend;
 import com.sparta.newsfeed_project.domain.friend.repository.FriendRepository;
 import com.sparta.newsfeed_project.domain.user.entity.User;
 import com.sparta.newsfeed_project.domain.user.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +24,7 @@ public class FriendService {
 
     private User findUser(Long id) {
         return userRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException("사용자를 찾을 수 없습니다.")
+                () -> new EntityNotFoundException("사용자를 찾을 수 없습니다.")
         );
     }
 
@@ -35,7 +36,7 @@ public class FriendService {
 
     public FollowedResponseDto followUser(User me, String followingEmail) {
         User followingUser = userRepository.findUserByEmail(followingEmail).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 사용자입니다.")
+                () -> new EntityNotFoundException("존재하지 않는 사용자입니다.")
         );
         if(findFriend(me, followingUser, true) != null) {
             throw new IllegalArgumentException("이미 팔로우한 사용자입니다.");
@@ -61,7 +62,7 @@ public class FriendService {
         Friend friend = findFriend(me, follower, false);
 
         if(friend == null) {
-            throw new IllegalArgumentException("팔로워를 찾을 수 없습니다.");
+            throw new EntityNotFoundException("팔로워를 찾을 수 없습니다.");
         }
         if(!friend.isAccepted()) {
             friend.acceptFollow();
@@ -75,7 +76,7 @@ public class FriendService {
         Friend friend = findFriend(me, follower, true);
 
         if(friend == null) {
-            throw new IllegalArgumentException("팔로잉한 유저를 찾을 수 없습니다.");
+            throw new EntityNotFoundException("팔로잉한 유저를 찾을 수 없습니다.");
         }
 
         friendRepository.delete(friend);

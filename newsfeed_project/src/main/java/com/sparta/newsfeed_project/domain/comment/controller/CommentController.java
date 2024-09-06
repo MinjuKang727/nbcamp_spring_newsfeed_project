@@ -24,8 +24,6 @@ public class CommentController {
     private final CommentService commentService;
     private final TokenBlacklistService tokenBlacklistService;
 
-    //댓글 등록
-    //튜터님께 여쭤본 후 URI 수정할 수 있도록
     @PostMapping("/posts/{post_id}/comments")
     public ResponseEntity<CommentSaveResponseDto> saveComment (HttpServletRequest request,
                                                                @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -38,13 +36,11 @@ public class CommentController {
         throw new CommonException(ExceptionCode.FAILED_SAVE_COMMENT, new CommonException(ExceptionCode.EXPIRED_JWT_TOKEN));
     }
 
-    //댓글 조회
     @GetMapping("/posts/{post_id}/comments")
     public ResponseEntity<List<CommentSimpleResponseDto>> getCommentList (HttpServletRequest request, @PathVariable Long post_id) throws CommonException, IOException {
             return ResponseEntity.ok(commentService.getCommentList(post_id));
     }
 
-    // 댓글 수정
     @PutMapping("/posts/{post_id}/comments/{comment_id}")
     public ResponseEntity<CommentUpdateResponseDto> updateComment (HttpServletRequest request,
                                                                    @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -59,7 +55,6 @@ public class CommentController {
 
     }
 
-    //댓글 삭제
     @DeleteMapping("/posts/{post_id}/comments/{comment_id}")
     public void deleteComment(HttpServletRequest request,
                               @AuthenticationPrincipal UserDetailsImpl userDetails,

@@ -2,6 +2,7 @@ package com.sparta.newsfeed_project.domain.like.service;
 
 import com.sparta.newsfeed_project.domain.comment.entity.Comment;
 import com.sparta.newsfeed_project.domain.comment.repository.CommentRepository;
+import com.sparta.newsfeed_project.domain.common.exception.LikeException;
 import com.sparta.newsfeed_project.domain.like.dto.LikeCommentResponseDto;
 import com.sparta.newsfeed_project.domain.like.dto.LikePostResponseDto;
 import com.sparta.newsfeed_project.domain.like.entity.Like;
@@ -10,6 +11,7 @@ import com.sparta.newsfeed_project.domain.post.entity.Post;
 import com.sparta.newsfeed_project.domain.post.repository.PostRepository;
 import com.sparta.newsfeed_project.domain.user.entity.User;
 import com.sparta.newsfeed_project.domain.user.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,13 +30,13 @@ public class LikeService {
 
     private Post findPost(Long postId) {
         return postRepository.findById(postId).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 게시물입니다.")
+                () -> new EntityNotFoundException("존재하지 않는 게시물입니다.")
         );
     }
 
     private Comment findComment(Long commentId) {
         return commentRepository.findById(commentId).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 댓글입니다.")
+                () -> new EntityNotFoundException("존재하지 않는 댓글입니다.")
         );
     }
 
@@ -44,18 +46,18 @@ public class LikeService {
         } else if (entity instanceof Comment) {
             return likeRepository.findByUserAndComment(user, (Comment) entity);
         }
-        throw new IllegalArgumentException("잘못된 타입입니다: " + contentType);
+        throw new LikeException("잘못된 타입입니다: " + contentType);
     }
 
     private void validateLikeAction(User user, Long ownerId, String contentType) {
         if(user.getId().equals(ownerId)) {
-            throw new IllegalArgumentException("본인이 작성한 " + contentType + "에 좋아요를 남길 수 없습니다.");
+            throw new LikeException("본인이 작성한 " + contentType + "에 좋아요를 남길 수 없습니다.");
         }
     }
 
     private <T> void performLike(User user, T entity, String contentType) {
         if (findLike(user, entity, contentType) != null) {
-            throw new IllegalArgumentException("이미 이 " + contentType + "에 좋아요를 남겼습니다.");
+            throw new LikeException("이미 이 " + contentType + "에 좋아요를 남겼습니다.");
         }
         likeRepository.save(new Like(user, entity instanceof Post ? (Post) entity : null, entity instanceof Comment ? (Comment) entity : null));
     }
@@ -63,7 +65,7 @@ public class LikeService {
     private <T> void performUnlike(User user, T entity, String contentType) {
         Like like = findLike(user, entity, contentType);
         if (like == null) {
-            throw new IllegalArgumentException(contentType + "에 좋아요를 누르지 않았습니다.");
+            throw new LikeException(contentType + "에 좋아요를 누르지 않았습니다.");
         }
         likeRepository.delete(like);
     }
