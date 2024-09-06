@@ -1,23 +1,19 @@
 package com.sparta.newsfeed_project.domain.comment.controller;
 
 
-import com.sparta.newsfeed_project.auth.jwt.JwtUtil;
 import com.sparta.newsfeed_project.auth.security.UserDetailsImpl;
 import com.sparta.newsfeed_project.domain.comment.dto.*;
 import com.sparta.newsfeed_project.domain.comment.service.CommentService;
 import com.sparta.newsfeed_project.domain.common.exception.CommonException;
 import com.sparta.newsfeed_project.domain.common.exception.ExceptionCode;
 import com.sparta.newsfeed_project.domain.token.TokenBlacklistService;
-import com.sparta.newsfeed_project.domain.user.dto.response.UserCUResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 @RestController
@@ -31,10 +27,12 @@ public class CommentController {
     //댓글 등록
     //튜터님께 여쭤본 후 URI 수정할 수 있도록
     @PostMapping("/posts/{post_id}/comments")
-    public ResponseEntity<CommentSaveResponseDto> saveComment (HttpServletRequest request, @PathVariable Long post_id,
+    public ResponseEntity<CommentSaveResponseDto> saveComment (HttpServletRequest request,
+                                                               @AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                               @PathVariable Long post_id,
                                                                @RequestBody CommentSaveRequestDto commentSaveRequestDto) throws CommonException, IOException {
         if (!this.tokenBlacklistService.isTokenBlackListed(request)) {
-            return ResponseEntity.ok(commentService.saveComment(post_id,commentSaveRequestDto));
+            return ResponseEntity.ok(commentService.saveComment(userDetails.getUser(), post_id,commentSaveRequestDto));
         }
 
         throw new CommonException(ExceptionCode.FAILED_SAVE_COMMENT, new CommonException(ExceptionCode.EXPIRED_JWT_TOKEN));
