@@ -11,45 +11,33 @@
 - Spring Security
 
 ## API 명세서
-![image](https://github.com/user-attachments/assets/bd56520a-6e27-4690-80ea-1054f1c4f364)
+![API 명세서](https://github.com/user-attachments/assets/bd56520a-6e27-4690-80ea-1054f1c4f364)
 
 ## ERD 다이어그램
-![image](https://github.com/user-attachments/assets/ded45167-bfee-445b-9c98-98ef5a7da9e9)
+![ERD 다이어그램](https://github.com/user-attachments/assets/ded45167-bfee-445b-9c98-98ef5a7da9e9)
 
 ## 와이어프레임
-![image](https://github.com/user-attachments/assets/83d440b2-ce0d-4e99-b7a7-3340e04e24d0)
-![image](https://github.com/user-attachments/assets/c8cf577e-a835-4563-b9c8-db609186a127)
-![image](https://github.com/user-attachments/assets/0f301410-c473-4a03-977b-26f19c6bc389)
-![image](https://github.com/user-attachments/assets/73f50cef-80af-40ce-87d3-980bb1d2d4c8)
-![image](https://github.com/user-attachments/assets/8aee9fbf-fb8d-41e1-b662-39dd66438410)
-![image](https://github.com/user-attachments/assets/ea588b3f-f7d9-4989-8641-fab4ee411b76)
-![image](https://github.com/user-attachments/assets/97f4ff59-6680-481e-af2f-0636ab5fe0d5)
-![image](https://github.com/user-attachments/assets/493da0bb-60ce-4a1d-8461-5626a21f6682)
-![image](https://github.com/user-attachments/assets/5efa8ae8-1908-4913-98ad-45c0fabbe172)
-![image](https://github.com/user-attachments/assets/f1c3a4cd-22e0-44a6-89d5-ddebc0760d13)
-![image](https://github.com/user-attachments/assets/3b48a373-6e56-4e97-a000-42d1ee6c7bc7)
-![image](https://github.com/user-attachments/assets/dc2d5c4d-07dd-4926-b23d-9b22b7b1b2cc)
-![image](https://github.com/user-attachments/assets/97dfbf43-d7e1-47b0-9e9d-0cd3b01ad77a)
-![image](https://github.com/user-attachments/assets/684a7520-da27-4211-a8d1-3f0a06a3a92c)
+![와이어프레임](https://github.com/user-attachments/assets/31b213b8-2db1-4840-b886-1e4ebf0d4c59)
+
 
 ## Flow Chart
 ### Main
-![image](https://github.com/user-attachments/assets/8a79d96e-e766-4555-b233-e173c25654bd)
+![Main Flow Chart](https://github.com/user-attachments/assets/8a79d96e-e766-4555-b233-e173c25654bd)
 
 ### User
-![image](https://github.com/user-attachments/assets/f8a5c621-de29-4a5a-861b-5897f17ef68a)
+![User Flow Chart](https://github.com/user-attachments/assets/f8a5c621-de29-4a5a-861b-5897f17ef68a)
 
 ### Post
-![image](https://github.com/user-attachments/assets/abcc73e4-0584-48c0-8103-d652a8b9aed0)
+![Post Flow Chart](https://github.com/user-attachments/assets/abcc73e4-0584-48c0-8103-d652a8b9aed0)
 
 ### Comment
-![image](https://github.com/user-attachments/assets/153d55c6-3ec4-4da3-a20d-4e64c86f4878)
+![Comment Flow Chart](https://github.com/user-attachments/assets/153d55c6-3ec4-4da3-a20d-4e64c86f4878)
 
 ### Friend
-![image](https://github.com/user-attachments/assets/d331f553-87b0-44bd-861c-485af4dd1c48)
+![Friend Flow Chart](https://github.com/user-attachments/assets/d331f553-87b0-44bd-861c-485af4dd1c48)
 
 ### Like
-![image](https://github.com/user-attachments/assets/1238d95e-258b-4fee-8b12-7a790dc33c2a)
+![Like Flow Chart](https://github.com/user-attachments/assets/1238d95e-258b-4fee-8b12-7a790dc33c2a)
 
 
 ## 🏆 요구 기능
@@ -132,4 +120,27 @@
     - 사용자가 게시물이나 댓글에 좋아요를 남기거나 취소할 수 있습니다.
     - 본인이 작성한 게시물과 댓글에 좋아요를 남길 수 없습니다.
     - 같은 게시물에는 사용자당 한 번만 좋아요가 가능합니다.
+
+---
+## 트러블 슈팅
+### 모든 에러가 다 403으로 뜨는 문제
+<img src="https://github.com/user-attachments/assets/673bc6e5-cf0c-44ab-a3e4-6641eb83cea9" width="60%">
+<img src="https://github.com/user-attachments/assets/0d57c75c-4c2a-4638-b75f-88aed87d787c" width="60%">
+<img src="https://github.com/user-attachments/assets/cdfd5179-1a49-423f-8179-ddbfb33500a9" width="60%">
+<img src="https://github.com/user-attachments/assets/75c05b9b-63bf-4e26-bebb-753b4fa90849" width="60%">
+<img src="https://github.com/user-attachments/assets/e7110913-61f2-4782-a0a3-98e53c9f53c4" width="60%">
+
+<br><Br>
+
+### N + 1 문제
+<img src="https://github.com/user-attachments/assets/1e812391-e70b-45e5-8e85-30c60d870bd9" width="60%">
+<img src="https://github.com/user-attachments/assets/b96ff2cb-d215-46a9-8d1f-865656fc38dc" width="60%">
+
+<br><Br>
+
+### 로그아웃 시, 만료되지 않은 JWT 토큰 처리
+<img src="https://github.com/user-attachments/assets/592094f3-0e7e-4c41-946e-cf70a3690944" width="60%">
+
+
+
  
