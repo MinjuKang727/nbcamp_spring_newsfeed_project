@@ -1,5 +1,6 @@
 package com.sparta.newsfeed_project.domain.user.dto.response;
 
+import com.sparta.newsfeed_project.domain.user.entity.User;
 import lombok.Getter;
 
 @Getter
