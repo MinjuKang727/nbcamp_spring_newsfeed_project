@@ -2,7 +2,9 @@ package com.sparta.newsfeed_project.auth.jwt;
 
 
 import com.sparta.newsfeed_project.auth.security.UserDetailsServiceImpl;
+import com.sparta.newsfeed_project.domain.token.TokenBlacklistService;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,35 +23,46 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @Slf4j(topic = "JWT 검증 및 인가")
-@RequiredArgsConstructor
+
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private  final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
+    private final TokenBlacklistService tokenBlacklistService;
+
+    public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, TokenBlacklistService tokenBlacklistService) {
+        this.jwtUtil = jwtUtil;
+        this.userDetailsService = userDetailsService;
+        this.tokenBlacklistService = tokenBlacklistService;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String tokenValue = jwtUtil.getTokentFromRequest(request);
+        String bearerToken = request.getHeader(JwtUtil.AUTHORIZATION_HEADER);
 
-        if (StringUtils.hasText(tokenValue)) {
-            tokenValue = jwtUtil.substringToken(tokenValue);
+        if (StringUtils.hasText(bearerToken)) {
+            bearerToken = jwtUtil.getDecodedToken(bearerToken);
+            String token = jwtUtil.substringToken(bearerToken);
+            if (!this.tokenBlacklistService.isTokenBlackListed(token)) {
+                jwtUtil.validateToken(token);
 
-            jwtUtil.validateToken(tokenValue);
+                Claims info = jwtUtil.getUserInfoFromToken(token);
 
-            Claims info = jwtUtil.getUserInfoFromToken(tokenValue);
-
-            try {
-                this.setAuthentication(info.getSubject(), response);
-            } catch (Exception e) {
-                log.error(e.getMessage());
-                response.getWriter().write(e.getMessage());
-                return;
+                try {
+                    this.setAuthentication(info.getSubject(), response);
+                } catch (ServletException e) {
+                    response.setStatus(404);
+                    response.getWriter().write(e.getMessage());
+                }
+            } else {
+                response.setStatus(401);
+                response.getWriter().write("만료된 토큰입니다.");
             }
         }
 
         filterChain.doFilter(request, response);
     }
 
-    private void setAuthentication(String email, HttpServletResponse response) throws IOException{
+    private void setAuthentication(String email, HttpServletResponse response) throws ServletException {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         try {
             Authentication authentication = this.createAuthentication(email, response);
@@ -57,7 +70,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
             SecurityContextHolder.setContext(context);
         } catch (UsernameNotFoundException e) {
-            throw new IOException(e.getMessage());
+            throw new ServletException(e.getMessage());
         }
 
     }
@@ -72,8 +85,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(email);
             return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         } catch (UsernameNotFoundException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             throw new UsernameNotFoundException(e.getMessage());
         }
     }
 }
+

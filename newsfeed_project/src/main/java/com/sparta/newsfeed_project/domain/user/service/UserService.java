@@ -3,6 +3,7 @@ package com.sparta.newsfeed_project.domain.user.service;
 import com.sparta.newsfeed_project.auth.jwt.JwtUtil;
 import com.sparta.newsfeed_project.domain.common.exception.CommonException;
 import com.sparta.newsfeed_project.domain.common.exception.ExceptionCode;
+import com.sparta.newsfeed_project.domain.user.UserException;
 import com.sparta.newsfeed_project.domain.user.dto.request.UserCreateRequestDto;
 import com.sparta.newsfeed_project.domain.user.dto.request.UserDeleteRequestDto;
 import com.sparta.newsfeed_project.domain.user.dto.request.UserUpdateRequestDto;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 @Slf4j(topic = "UserService")
@@ -40,27 +42,27 @@ public class UserService {
     private String ADMIN_TOKEN;
 
     @Transactional
-    public UserCUResponseDto signup(UserCreateRequestDto requestDto) throws CommonException {
+    public UserCUResponseDto signup(UserCreateRequestDto requestDto) throws UserException {
         log.trace("signup() 메서드 실행");
         String email = requestDto.getEmail();
         String password = this.passwordEncoder.encode(requestDto.getPassword());
 
         // 회원 중복 확인
         if (this.userRepository.existsByEmail(email)) {
-            throw new CommonException(ExceptionCode.FAILED_SIGNUP, new CommonException(ExceptionCode.ALREADY_EXIST_EMAIL));
+            throw new UserException("회원 가입 실패", new IllegalArgumentException("해당 이메일의 사용자가 이미 존재합니다."));
         }
 
         // 휴대폰 번호 중복확인
         String phoneNumber = requestDto.getPhoneNumber();
         if (this.userRepository.existsByPhoneNumberAndIsDeleted(phoneNumber, 0)) {
-            throw new CommonException(ExceptionCode.FAILED_SIGNUP, new CommonException(ExceptionCode.ALREADY_EXIST_PHONE_NUMBER));
+            throw new UserException("회원 가입 실패", new IllegalArgumentException("해당 휴대폰 번호의 사용자가 이미 존재합니다."));
         }
 
         // 사용자 ROLE 확인
         UserRole role = UserRole.USER;
         if(requestDto.isAdmin()) {
             if (!ADMIN_TOKEN.equals(requestDto.getAdminToken())) {
-                throw new CommonException(ExceptionCode.FAILED_SIGNUP, new CommonException(ExceptionCode.INVALID_ADMIN_TOKEN));
+                throw new UserException("회원 가입 실패", new IllegalArgumentException("관리자 암호가 틀려 등록이 불가능합니다."));
             }
             role = UserRole.ADMIN;
         }
@@ -73,16 +75,16 @@ public class UserService {
     }
 
     /**
-     * 사용자 조회
+     * 프로필 조회
      * @param userId : 사용자 고유 식별자
      * @return 사용자명, 이메일, 이미지주소가 담긴 ResponseDto
      * @throws NullPointerException
      */
-    public UserReadResponseDto getUser(long userId) throws CommonException {
+    public UserReadResponseDto getUser(long userId) throws UserException {
         log.trace("getUser() 메서드 실행");
         User user = this.userRepository.findUserByIdAndIsDeleted(userId, 0)
                 .orElseThrow(() ->
-                    new CommonException(ExceptionCode.FAILED_VIEW_USER, new CommonException(ExceptionCode.USER_NOT_FOUND))
+                    new UserException("프로필 조회 실패", new NoSuchElementException("해당 사용자를 찾을 수 없습니다."))
                 );
 
         return new UserReadResponseDto(
@@ -99,17 +101,17 @@ public class UserService {
      * @throws IllegalArgumentException : 비밀번호 입력 오류 or 수정한 이메일이 이미 DB에 존재할 때, 발생
      */
     @Transactional
-    public UserCUResponseDto updateUser(User user, UserUpdateRequestDto requestDto) throws CommonException {
+    public UserCUResponseDto updateUser(User user, UserUpdateRequestDto requestDto) throws UserException {
         log.trace("updateUser() 메서드 실행");
         String email = requestDto.getNewEmail();
-        String password = this.passwordEncoder.encode(requestDto.getPassword());
+        String password = this.passwordEncoder.encode(requestDto.getNewPassword());
 
         // 비밀번호 확인
         if (!this.passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
-            throw new CommonException(ExceptionCode.FAILED_UPDATE_USER, new CommonException(ExceptionCode.INCORRECT_PASSWORD));
+            throw new UserException("회원 정보 수정 실패", new IllegalArgumentException("비밀번호를 잘못입력하셨습니다."));
         } else if (email != null) {  // 이메일 확인
             if (!Objects.equals(user.getEmail(), email) && this.userRepository.existsByEmail(email)) {
-                throw new CommonException(ExceptionCode.FAILED_UPDATE_USER, new CommonException(ExceptionCode.ALREADY_EXIST_EMAIL));
+                throw new UserException("회원 정보 수정 실패", new IllegalArgumentException("해당 이메일의 사용자가 이미 존재합니다."));
             }
 
             user.updateUser(requestDto, password);
@@ -126,14 +128,15 @@ public class UserService {
      * @throws IllegalArgumentException : 현재 로그인 한 계정과 탈퇴 요청한 계정이 다른 경우, 비밀번호가 일치하지 않는 경우 발생
      */
     @Transactional
-    public void deleteUser(User user, UserDeleteRequestDto requestDto) throws CommonException {
+    public void deleteUser(User user, UserDeleteRequestDto requestDto) throws UserException {
         log.trace("deleteUser() 메서드 실행");
         if (!Objects.equals(user.getEmail(), requestDto.getEmail())) {
-            throw new CommonException(ExceptionCode.FAILED_DELETE_USER, new CommonException(ExceptionCode.NOT_MY_ACCOUNT));
+            throw new UserException("회원 탈퇴 실패", new IllegalAccessException("회원 탈퇴는 본인 계정만 탈퇴 가능합니다."));
         }
 
         if (!this.passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
-            throw new CommonException(ExceptionCode.FAILED_DELETE_USER, new CommonException(ExceptionCode.INCORRECT_PASSWORD));
+            log.info("입력 비번 : {} ({})", requestDto.getPassword(), this.passwordEncoder.matches(requestDto.getPassword(), user.getPassword()));
+            throw new UserException("회원 탈퇴 실패", new IllegalArgumentException("비밀번호를 잘못입력하셨습니다."));
         }
 
         user.delete();

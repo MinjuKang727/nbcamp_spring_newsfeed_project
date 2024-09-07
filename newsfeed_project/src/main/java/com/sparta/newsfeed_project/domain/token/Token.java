@@ -23,4 +23,3 @@ public class Token {
         this.expirationTime = expirationTime;
     }
 }
-

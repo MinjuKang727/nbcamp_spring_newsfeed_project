@@ -38,7 +38,7 @@ public class FriendService {
         if (Objects.equals(me.getEmail(), followingEmail)) {
             throw new IllegalArgumentException("자신의 계정은 팔로우 할 수 없습니다.");
         }
-        
+
         User followingUser = userRepository.findUserByEmail(followingEmail).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않는 사용자입니다.")
         );

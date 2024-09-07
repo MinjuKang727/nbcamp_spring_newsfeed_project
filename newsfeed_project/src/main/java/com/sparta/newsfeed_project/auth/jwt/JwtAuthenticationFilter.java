@@ -31,15 +31,15 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         log.info("로그인 시도");
 
         try {
-            UserLoginRequestDto requestDto = new ObjectMapper().readValue(request.getInputStream(), UserLoginRequestDto.class);
+                UserLoginRequestDto requestDto = new ObjectMapper().readValue(request.getInputStream(), UserLoginRequestDto.class);
 
-            return getAuthenticationManager().authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            requestDto.getEmail(),
-                            requestDto.getPassword(),
-                            null
-                    )
-            );
+                return getAuthenticationManager().authenticate(
+                        new UsernamePasswordAuthenticationToken(
+                                requestDto.getEmail(),
+                                requestDto.getPassword(),
+                                null
+                        )
+                );
         } catch (IOException e) {
             log.error(e.getMessage());
             throw new RuntimeException(e.getMessage());
@@ -62,6 +62,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             response.addHeader(jwtUtil.AUTHORIZATION_HEADER, token);
             response.setStatus(200);
         } else {
+            response.setStatus(500);
             response.getWriter().write("Create Token Error");
         }
 
@@ -73,6 +74,5 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         response.setStatus(401);
         response.getWriter().write("Fail to Login");
     }
-
 
 }
