@@ -17,8 +17,6 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    //댓글 등록
-    //튜터님께 여쭤본 후 URI 수정할 수 있도록
     @PostMapping("/posts/{post_id}/comments")
     public ResponseEntity<CommentSaveResponseDto> saveComment (@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                @PathVariable Long post_id,
@@ -26,13 +24,11 @@ public class CommentController {
             return ResponseEntity.ok(commentService.saveComment(userDetails.getUser(), post_id, commentSaveRequestDto));
     }
 
-    //댓글 조회
     @GetMapping("/posts/{post_id}/comments")
     public ResponseEntity<List<CommentSimpleResponseDto>> getCommentList (@PathVariable Long post_id) {
             return ResponseEntity.ok(commentService.getCommentList(post_id));
     }
 
-    // 댓글 수정
     @PutMapping("/posts/{post_id}/comments/{comment_id}")
     public ResponseEntity<CommentUpdateResponseDto> updateComment (@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                    @PathVariable Long post_id,
@@ -41,7 +37,6 @@ public class CommentController {
             return ResponseEntity.ok(commentService.updateComment(userDetails,post_id,comment_id,commentUpdateRequestDto));
     }
 
-    //댓글 삭제
     @DeleteMapping("/posts/{post_id}/comments/{comment_id}")
     public void deleteComment(@AuthenticationPrincipal UserDetailsImpl userDetails,
                               @PathVariable Long post_id,

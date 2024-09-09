@@ -22,41 +22,40 @@ public class LikeController {
     private final LikeService likeService;
 
     // 게시물 좋아요
-    @PostMapping("/like-post")
+    @PostMapping("/posts/{postId}/likes")
     @ResponseStatus(HttpStatus.OK)
     public void likePost(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody LikePostRequestDto likePostRequestDto) {
             this.likeService.likePost(userDetails.getUser(), likePostRequestDto.getPostId());
     }
 
     // 로그인 사용자가 좋아요한 게시물 조회
-    @GetMapping("/like-post")
+    @GetMapping("/posts/likes")
     public ResponseEntity<List<LikePostResponseDto>> getLikePost(@AuthenticationPrincipal UserDetailsImpl userDetails) {
             return ResponseEntity.ok(this.likeService.getLikePost(userDetails.getUser()));
-
     }
 
     // 댓글 좋아요
-    @PostMapping("/like-comment")
+    @PostMapping("/comments/{commentId}/likes")
     @ResponseStatus(HttpStatus.OK)
     public void likeComment( @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody LikeCommentRequestDto likeCommentRequestDto) {
             this.likeService.likeComment(userDetails.getUser(), likeCommentRequestDto.getCommentId());
     }
 
     // 로그인 사용자가 좋아요한 댓글 조회
-    @GetMapping("/like-comment")
+    @GetMapping("/comments/likes")
     public ResponseEntity<List<LikeCommentResponseDto>> getLikeComment(@AuthenticationPrincipal UserDetailsImpl userDetails) {
             return ResponseEntity.ok(this.likeService.getLikeComment(userDetails.getUser()));
     }
 
     // 게시물 좋아요 취소
-    @DeleteMapping("/unlike-post")
+    @DeleteMapping("/posts/{postId}/likes")
     @ResponseStatus(HttpStatus.OK)
     public void unlikePost(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody LikePostRequestDto likePostRequestDto) {
             this.likeService.unlikePost(userDetails.getUser(), likePostRequestDto.getPostId());
     }
 
     // 댓글 좋아요 취소
-    @DeleteMapping("/unlike-comment")
+    @DeleteMapping("/comments/{commentId}/likes")
     @ResponseStatus(HttpStatus.OK)
     public void unlikeComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody LikeCommentRequestDto likeCommentRequestDto) {
             this.likeService.unlikeComment(userDetails.getUser(), likeCommentRequestDto.getCommentId());
