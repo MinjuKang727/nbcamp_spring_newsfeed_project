@@ -24,7 +24,8 @@ public class UserLogoutHandler implements LogoutHandler {
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         log.info("로그아웃 시도");
         try {
-            this.tokenBlacklistService.addTokenToBlackList(request);
+            String token = request.getHeader(JwtUtil.AUTHORIZATION_HEADER);
+            this.tokenBlacklistService.addTokenToBlackList(token);
             response.setHeader(JwtUtil.AUTHORIZATION_HEADER, null);
         } catch (ServletException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

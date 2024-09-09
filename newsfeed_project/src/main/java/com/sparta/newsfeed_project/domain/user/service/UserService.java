@@ -103,18 +103,22 @@ public class UserService {
     @Transactional
     public UserCUResponseDto updateUser(User user, UserUpdateRequestDto requestDto) throws UserException {
         log.trace("updateUser() 메서드 실행");
-        String email = requestDto.getNewEmail();
-        String password = this.passwordEncoder.encode(requestDto.getNewPassword());
-
         // 비밀번호 확인
         if (!this.passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
             throw new UserException("회원 정보 수정 실패", new IllegalArgumentException("비밀번호를 잘못입력하셨습니다."));
-        } else if (email != null) {  // 이메일 확인
+        } else if (requestDto.getNewEmail() != null) {  // 이메일 확인
+            String email = requestDto.getNewEmail();
+
             if (!Objects.equals(user.getEmail(), email) && this.userRepository.existsByEmail(email)) {
                 throw new UserException("회원 정보 수정 실패", new IllegalArgumentException("해당 이메일의 사용자가 이미 존재합니다."));
             }
+        }
 
-            user.updateUser(requestDto, password);
+        user.update(requestDto);
+
+        if (requestDto.getNewPassword() != null) {
+            String password = this.passwordEncoder.encode(requestDto.getNewPassword());
+            user.setPassword(password);
         }
 
         User updatedUser = this.userRepository.saveAndFlush(user);
@@ -135,7 +139,6 @@ public class UserService {
         }
 
         if (!this.passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
-            log.info("입력 비번 : {} ({})", requestDto.getPassword(), this.passwordEncoder.matches(requestDto.getPassword(), user.getPassword()));
             throw new UserException("회원 탈퇴 실패", new IllegalArgumentException("비밀번호를 잘못입력하셨습니다."));
         }
 

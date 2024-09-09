@@ -22,13 +22,12 @@ public class TokenBlacklistService {
     }
 
     @Transactional
-    public void addTokenToBlackList(HttpServletRequest request) throws ServletException {
+    public void addTokenToBlackList(String token) throws ServletException {
         log.info("토큰 블랙리스트에 추가");
-        String bearerToken = request.getHeader(JwtUtil.AUTHORIZATION_HEADER);
-        if (bearerToken != null) {
-            bearerToken = jwtUtil.getDecodedToken(bearerToken);
 
-            String token = jwtUtil.substringToken(bearerToken);
+        if (token != null) {
+            token = jwtUtil.getDecodedToken(token);
+            token = jwtUtil.substringToken(token);
 
             Date expirationTime = jwtUtil.getExpirationTime(token);
             Token expiredToken = new Token(token, expirationTime);

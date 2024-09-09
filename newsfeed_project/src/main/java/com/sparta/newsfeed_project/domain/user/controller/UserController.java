@@ -43,13 +43,15 @@ public class UserController {
      * @return 회원 가입 결과
      */
     @PostMapping("/users/signup")
-    public ResponseEntity<UserCUResponseDto> signup(HttpServletRequest request, @RequestBody @Valid UserCreateRequestDto requestDto) throws UserException {
+    public ResponseEntity<UserCUResponseDto> signup(@RequestHeader(value = JwtUtil.AUTHORIZATION_HEADER, required = false) String token, @RequestBody @Valid UserCreateRequestDto requestDto) throws UserException {
         log.info(":::회원 가입:::");
         try {
             UserCUResponseDto responseDto = this.userService.signup(requestDto);
             String bearerToken = this.userService.createToken(responseDto);
 
-            this.tokenBlacklistService.addTokenToBlackList(request);
+            if (token != null) {
+                this.tokenBlacklistService.addTokenToBlackList(token);
+            }
 
             return ResponseEntity.status(HttpStatus.OK).header(JwtUtil.AUTHORIZATION_HEADER, bearerToken).body(responseDto);
         } catch (UnsupportedEncodingException | ServletException e) {
@@ -79,13 +81,13 @@ public class UserController {
      * @return 수정된 유저 사용자 객체를 담은 ResponseEntity
      */
     @PutMapping("/users")
-    public ResponseEntity<UserCUResponseDto> updateUser(HttpServletRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserUpdateRequestDto requestDto) throws UserException {
+    public ResponseEntity<UserCUResponseDto> updateUser(@RequestHeader(JwtUtil.AUTHORIZATION_HEADER) String token, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserUpdateRequestDto requestDto) throws UserException {
         log.info(":::회원 정보 수정:::");
         try {
             UserCUResponseDto responseDto = this.userService.updateUser(userDetails.getUser(), requestDto);
             String bearerToken = this.userService.createToken(responseDto);
 
-            this.tokenBlacklistService.addTokenToBlackList(request);
+            this.tokenBlacklistService.addTokenToBlackList(token);
 
             return ResponseEntity.status(HttpStatus.OK).header(JwtUtil.AUTHORIZATION_HEADER, bearerToken).body(responseDto);
         } catch (UnsupportedEncodingException | UserException | ServletException e) {
@@ -101,11 +103,11 @@ public class UserController {
      * @return : 회원 탈퇴 결과
      */
     @DeleteMapping("/users")
-    public ResponseEntity<String> deleteUser(HttpServletRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserDeleteRequestDto requestDto) throws UserException, ServletException {
+    public ResponseEntity<String> deleteUser(@RequestHeader(JwtUtil.AUTHORIZATION_HEADER)  String token, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserDeleteRequestDto requestDto) throws UserException, ServletException {
         log.info(":::회원 탈퇴:::");
         this.userService.deleteUser(userDetails.getUser(), requestDto);
 
-        this.tokenBlacklistService.addTokenToBlackList(request);
+        this.tokenBlacklistService.addTokenToBlackList(token);
 
         return ResponseEntity.status(HttpStatus.OK).body("회원 탈퇴 성공");
     }

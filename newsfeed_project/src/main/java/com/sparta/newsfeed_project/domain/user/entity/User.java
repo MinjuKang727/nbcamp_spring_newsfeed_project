@@ -58,15 +58,12 @@ public class User {
         this.role = role;
     }
 
-    public void updateUser(UserUpdateRequestDto requestDto, String password) {
+    public void update(UserUpdateRequestDto requestDto) {
         if (requestDto.getNewUsername() != null) {
             this.username = requestDto.getNewUsername();
         }
         if (requestDto.getNewEmail() != null) {
             this.email = requestDto.getNewEmail();
-        }
-        if (password != null) {
-            this.password = password;
         }
         if (requestDto.getNewPhoneNumber() != null) {
             this.phoneNumber = requestDto.getNewPhoneNumber();
@@ -79,6 +76,10 @@ public class User {
     public void addPost(Post post) {
         posts.add(post);
         post.setUser(this);
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public void delete() {
