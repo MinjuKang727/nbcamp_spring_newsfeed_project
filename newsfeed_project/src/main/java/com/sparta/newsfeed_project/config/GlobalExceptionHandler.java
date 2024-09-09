@@ -1,8 +1,7 @@
 package com.sparta.newsfeed_project.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.newsfeed_project.domain.common.exception.CommonException;
+import com.sparta.newsfeed_project.domain.user.UserException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,55 +12,50 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    // Json 형식 변환 Exception handler
     @ExceptionHandler(JsonProcessingException.class)
-    public ResponseEntity<String> handleJsonProcessingException(JsonProcessingException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("에러 메세지 JSON 형식 변환 오류");
+    public ResponseEntity<JsonProcessingException> handleJsonProcessingException(JsonProcessingException e) {
+        return new ResponseEntity<>(e, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(CommonException.class)
-    public ResponseEntity<String> handleCommonException(CommonException e) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        String message = objectMapper.writeValueAsString(Map.of(
-                e.getMessage(), e.getCause().getMessage()
-        ));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+    @ExceptionHandler(UserException.class)
+    public ResponseEntity<Map<String,String>> handleUserException(UserException e) {
+        Map<String, String> errorMap = Map.of(e.getMessage(), e.getCause().getMessage());
+        if (e.getCause().getClass() == NoSuchElementException.class) {
+            return new ResponseEntity<>(errorMap, HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(errorMap, HttpStatus.BAD_REQUEST);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<String> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
+    public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         Map<String, String> errorMap = Map.of("message", "Validation Exception");
         e.getBindingResult().getFieldErrors().forEach(error -> {
             errorMap.put(error.getField(), error.getDefaultMessage());
         });
-        String message = objectMapper.writeValueAsString(errorMap);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+
+        return new ResponseEntity<>(errorMap, HttpStatus.BAD_REQUEST);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<String> handleConstraintViolationException(ConstraintViolationException e) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, String> errorMap = Map.of("message", "Violate Constraint");
-        e.getConstraintViolations().forEach(error ->
-                errorMap.put(error.getInvalidValue().toString(), error.getMessage()));
-        String message = objectMapper.writeValueAsString(errorMap);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+    public ResponseEntity<Map<String, String>> handleConstraintViolationException(ConstraintViolationException e) {
+        Map<String, String> errorMap = Map.of("message", "Violate Constraint", "error", e.toString());
+
+        return new ResponseEntity<>(errorMap, HttpStatus.BAD_REQUEST);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(IOException.class)
-    public ResponseEntity<String> handleIOException(IOException e) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, String> errorMap = Map.of("message", "토큰 오류", "error", e.getMessage());
-        String message = objectMapper.writeValueAsString(errorMap);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+    public ResponseEntity<Map<String, String>> handleIOException(IOException e) {
+        Map<String, String> errorMap = Map.of("message", "Token Error", "error", e.getMessage());
+        return new ResponseEntity<>(errorMap, HttpStatus.BAD_REQUEST);
     }
 }

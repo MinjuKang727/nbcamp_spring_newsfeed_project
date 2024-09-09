@@ -1,12 +1,12 @@
 package com.sparta.newsfeed_project.domain.token;
 
 import com.sparta.newsfeed_project.auth.jwt.JwtUtil;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.Date;
 
 @Slf4j(topic = "TokenBlacklistService")
@@ -22,21 +22,21 @@ public class TokenBlacklistService {
     }
 
     @Transactional
-    public void addTokenToBlackList(HttpServletRequest request) throws IOException {
+    public void addTokenToBlackList(String token) throws ServletException {
         log.info("토큰 블랙리스트에 추가");
 
-        String token = jwtUtil.getDecodedToken(request);
         if (token != null) {
+            token = jwtUtil.getDecodedToken(token);
+            token = jwtUtil.substringToken(token);
+
             Date expirationTime = jwtUtil.getExpirationTime(token);
             Token expiredToken = new Token(token, expirationTime);
             this.tokenBlacklistRepository.save(expiredToken);
         }
     }
 
-    public boolean isTokenBlackListed(HttpServletRequest request) throws IOException {
+    public boolean isTokenBlackListed(String token) {
         log.info("토큰 not 블랙리스트 검증");
-        String token = jwtUtil.getDecodedToken(request);
-
         return this.tokenBlacklistRepository.existsByToken(token);
     }
 
