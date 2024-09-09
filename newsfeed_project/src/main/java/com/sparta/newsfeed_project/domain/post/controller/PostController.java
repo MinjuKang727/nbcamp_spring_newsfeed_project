@@ -1,22 +1,15 @@
 package com.sparta.newsfeed_project.domain.post.controller;
 
 import com.sparta.newsfeed_project.auth.security.UserDetailsImpl;
-import com.sparta.newsfeed_project.domain.common.exception.CommonException;
-import com.sparta.newsfeed_project.domain.common.exception.ExceptionCode;
 import com.sparta.newsfeed_project.domain.post.dto.*;
 import com.sparta.newsfeed_project.domain.post.service.PostService;
-import com.sparta.newsfeed_project.domain.token.Token;
-import com.sparta.newsfeed_project.domain.token.TokenBlacklistService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 
-import java.io.IOException;
 import java.util.List;
 
 //게시글 컨트롤러

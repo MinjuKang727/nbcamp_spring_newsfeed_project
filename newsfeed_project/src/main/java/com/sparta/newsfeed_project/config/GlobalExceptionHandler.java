@@ -1,8 +1,6 @@
 package com.sparta.newsfeed_project.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.newsfeed_project.domain.common.exception.CommonException;
 import com.sparta.newsfeed_project.domain.user.UserException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -15,7 +13,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.io.IOException;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {

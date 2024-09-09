@@ -2,8 +2,6 @@ package com.sparta.newsfeed_project.domain.user.controller;
 
 import com.sparta.newsfeed_project.auth.jwt.JwtUtil;
 import com.sparta.newsfeed_project.auth.security.UserDetailsImpl;
-import com.sparta.newsfeed_project.domain.common.exception.CommonException;
-import com.sparta.newsfeed_project.domain.common.exception.ExceptionCode;
 import com.sparta.newsfeed_project.domain.token.TokenBlacklistService;
 import com.sparta.newsfeed_project.domain.user.UserException;
 import com.sparta.newsfeed_project.domain.user.dto.request.UserCreateRequestDto;
@@ -13,8 +11,6 @@ import com.sparta.newsfeed_project.domain.user.dto.response.UserCUResponseDto;
 import com.sparta.newsfeed_project.domain.user.dto.response.UserReadResponseDto;
 import com.sparta.newsfeed_project.domain.user.service.UserService;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

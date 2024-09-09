@@ -4,7 +4,6 @@ package com.sparta.newsfeed_project.domain.comment.controller;
 import com.sparta.newsfeed_project.auth.security.UserDetailsImpl;
 import com.sparta.newsfeed_project.domain.comment.dto.*;
 import com.sparta.newsfeed_project.domain.comment.service.CommentService;
-import com.sparta.newsfeed_project.domain.token.TokenBlacklistService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,7 +23,7 @@ public class CommentController {
     public ResponseEntity<CommentSaveResponseDto> saveComment (@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                @PathVariable Long post_id,
                                                                @RequestBody CommentSaveRequestDto commentSaveRequestDto) {
-            return ResponseEntity.ok(commentService.saveComment(post_id,commentSaveRequestDto, userDetails.getUser()));
+            return ResponseEntity.ok(commentService.saveComment(userDetails.getUser(), post_id, commentSaveRequestDto));
     }
 
     //댓글 조회

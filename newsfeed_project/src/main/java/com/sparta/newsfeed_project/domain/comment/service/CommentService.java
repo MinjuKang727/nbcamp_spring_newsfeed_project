@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j(topic = "CommentService")
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -27,13 +27,13 @@ public class CommentService {
 
     //댓글 등록
     @Transactional
-    public CommentSaveResponseDto saveComment(Long post_id, CommentSaveRequestDto commentSaveRequestDto, User user) {
+    public CommentSaveResponseDto saveComment(User me, Long post_id, CommentSaveRequestDto commentSaveRequestDto) {
 
         //게시물이 있는지 확인
         Post post = postRepository.findById(post_id).
                 orElseThrow(()-> new NullPointerException("게시물을 찾을 수 없습니다"));
 
-        Comment comment = new Comment(commentSaveRequestDto.getContent(),post, user);
+        Comment comment = new Comment(commentSaveRequestDto.getContent(),post, me);
         Comment savedComment = commentRepository.save(comment);
 
         PostDto postDto = new PostDto(post.getPostId(),post.getTitle(),post.getContent(),post.getCreatedAt(),post.getModifiedAt());
@@ -86,6 +86,7 @@ public class CommentService {
 
         log.info((!comment.getUser().getId().equals(userDetails.getMyId()) && !post.getUser().getId().equals(userDetails.getMyId()))+"");
         //게시물의 작성자 or 댓글의 작성자인지 확인
+
         if (!comment.getUser().getId().equals(userDetails.getMyId()) && !post.getUser().getId().equals(userDetails.getMyId())){
             throw new RuntimeException("댓글 수정은 댓글의 작성자 혹은 게시글의 작성자만 가능합니다.");
         }

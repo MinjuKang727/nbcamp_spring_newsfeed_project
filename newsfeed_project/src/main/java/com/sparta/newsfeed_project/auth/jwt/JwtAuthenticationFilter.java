@@ -2,7 +2,6 @@ package com.sparta.newsfeed_project.auth.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.newsfeed_project.auth.security.UserDetailsImpl;
-import com.sparta.newsfeed_project.domain.token.TokenBlacklistService;
 import com.sparta.newsfeed_project.domain.user.dto.request.UserLoginRequestDto;
 import com.sparta.newsfeed_project.domain.user.entity.UserRole;
 import jakarta.servlet.FilterChain;

@@ -1,13 +1,8 @@
 package com.sparta.newsfeed_project.domain.friend.controller;
 
 import com.sparta.newsfeed_project.auth.security.UserDetailsImpl;
-import com.sparta.newsfeed_project.domain.common.exception.CommonException;
-import com.sparta.newsfeed_project.domain.common.exception.ExceptionCode;
 import com.sparta.newsfeed_project.domain.friend.dto.*;
 import com.sparta.newsfeed_project.domain.friend.service.FriendService;
-import com.sparta.newsfeed_project.domain.token.TokenBlacklistService;
-import com.sparta.newsfeed_project.domain.user.entity.User;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 
 @Slf4j
