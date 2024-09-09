@@ -2,18 +2,15 @@ package com.sparta.newsfeed_project.domain.user.controller;
 
 import com.sparta.newsfeed_project.auth.jwt.JwtUtil;
 import com.sparta.newsfeed_project.auth.security.UserDetailsImpl;
-import com.sparta.newsfeed_project.domain.common.exception.CommonException;
-import com.sparta.newsfeed_project.domain.common.exception.ExceptionCode;
 import com.sparta.newsfeed_project.domain.token.TokenBlacklistService;
+import com.sparta.newsfeed_project.domain.user.UserException;
 import com.sparta.newsfeed_project.domain.user.dto.request.UserCreateRequestDto;
 import com.sparta.newsfeed_project.domain.user.dto.request.UserDeleteRequestDto;
 import com.sparta.newsfeed_project.domain.user.dto.request.UserUpdateRequestDto;
 import com.sparta.newsfeed_project.domain.user.dto.response.UserCUResponseDto;
 import com.sparta.newsfeed_project.domain.user.dto.response.UserReadResponseDto;
 import com.sparta.newsfeed_project.domain.user.service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.ConstraintViolationException;
+import jakarta.servlet.ServletException;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,7 +19,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 @Slf4j(topic = "UserController")
@@ -43,17 +39,21 @@ public class UserController {
      * @return 회원 가입 결과
      */
     @PostMapping("/users/signup")
-    public ResponseEntity<UserCUResponseDto> signup(@RequestBody @Valid UserCreateRequestDto requestDto) throws CommonException, ConstraintViolationException {
+    public ResponseEntity<UserCUResponseDto> signup(@RequestHeader(value = JwtUtil.AUTHORIZATION_HEADER, required = false) String token, @RequestBody @Valid UserCreateRequestDto requestDto) throws UserException {
         log.info(":::회원 가입:::");
         try {
             UserCUResponseDto responseDto = this.userService.signup(requestDto);
             String bearerToken = this.userService.createToken(responseDto);
 
+            if (token != null) {
+                this.tokenBlacklistService.addTokenToBlackList(token);
+            }
+
             return ResponseEntity.status(HttpStatus.OK).header(JwtUtil.AUTHORIZATION_HEADER, bearerToken).body(responseDto);
-        } catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException | ServletException e) {
             log.error("토큰 생성 에러 : {}", e.getMessage());
 
-            throw new CommonException(ExceptionCode.FAILED_CREATE_TOKEN, e);
+            throw new UserException("토큰 생성 실패", e);
         }
     }
 
@@ -63,7 +63,7 @@ public class UserController {
      * @return 조회된 유저 객체를 담은 ResponseEntity
      */
     @GetMapping("/users/{userId}")
-    public ResponseEntity<UserReadResponseDto> getUser(@PathVariable long userId) throws CommonException {
+    public ResponseEntity<UserReadResponseDto> getUser(@PathVariable long userId) throws UserException {
         log.info(":::프로필 조회 (user id : {}):::", userId);
 
         UserReadResponseDto responseDto = this.userService.getUser(userId);
@@ -77,21 +77,19 @@ public class UserController {
      * @return 수정된 유저 사용자 객체를 담은 ResponseEntity
      */
     @PutMapping("/users")
-    public ResponseEntity<UserCUResponseDto> updateUser(HttpServletRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserUpdateRequestDto requestDto) throws CommonException, IOException {
+    public ResponseEntity<UserCUResponseDto> updateUser(@RequestHeader(JwtUtil.AUTHORIZATION_HEADER) String token, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserUpdateRequestDto requestDto) throws UserException {
         log.info(":::회원 정보 수정:::");
-        if (!this.tokenBlacklistService.isTokenBlackListed(request)) {
-            try {
-                UserCUResponseDto responseDto = this.userService.updateUser(userDetails.getUser(), requestDto);
-                String bearerToken = this.userService.createToken(responseDto);
+        try {
+            UserCUResponseDto responseDto = this.userService.updateUser(userDetails.getUser(), requestDto);
+            String bearerToken = this.userService.createToken(responseDto);
 
-                return ResponseEntity.status(HttpStatus.OK).header(JwtUtil.AUTHORIZATION_HEADER, bearerToken).body(responseDto);
-            } catch (UnsupportedEncodingException e) {
-                log.error("토큰 생성 에러 : {}", e.getMessage());
-                throw new CommonException(ExceptionCode.FAILED_UPDATE_USER, new CommonException(ExceptionCode.FAILED_CREATE_TOKEN));
-            }
+            this.tokenBlacklistService.addTokenToBlackList(token);
+
+            return ResponseEntity.status(HttpStatus.OK).header(JwtUtil.AUTHORIZATION_HEADER, bearerToken).body(responseDto);
+        } catch (UnsupportedEncodingException | UserException | ServletException e) {
+            log.error("토큰 생성 에러 : {}", e.getMessage());
+            throw new UserException("사용자 정보 수정 실패", e);
         }
-
-        throw new CommonException(ExceptionCode.FAILED_UPDATE_USER, new CommonException(ExceptionCode.EXPIRED_JWT_TOKEN));
     }
 
     /**
@@ -101,17 +99,12 @@ public class UserController {
      * @return : 회원 탈퇴 결과
      */
     @DeleteMapping("/users")
-    public ResponseEntity<String> deleteUser(HttpServletRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserDeleteRequestDto requestDto) throws CommonException, IOException {
+    public ResponseEntity<String> deleteUser(@RequestHeader(JwtUtil.AUTHORIZATION_HEADER)  String token, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserDeleteRequestDto requestDto) throws UserException, ServletException {
         log.info(":::회원 탈퇴:::");
+        this.userService.deleteUser(userDetails.getUser(), requestDto);
 
-        if (!this.tokenBlacklistService.isTokenBlackListed(request)) {
-            this.userService.deleteUser(userDetails.getUser(), requestDto);
+        this.tokenBlacklistService.addTokenToBlackList(token);
 
-            return ResponseEntity.status(HttpStatus.OK).body("회원 탈퇴 성공");
-        }
-
-        throw new CommonException(ExceptionCode.FAILED_UPDATE_USER, new CommonException(ExceptionCode.EXPIRED_JWT_TOKEN));
+        return ResponseEntity.status(HttpStatus.OK).body("회원 탈퇴 성공");
     }
-
-
 }

@@ -84,11 +84,12 @@ public class CommentService {
         Comment comment = commentRepository.findById(comment_Id)
                 .orElseThrow(() -> new NullPointerException("댓글을 찾을 수 없습니다."));
 
-        log.info(comment.getUser().getId()+", "+post.getUser().getId() + ", " +userDetails.getMyId());
+        log.info((!comment.getUser().getId().equals(userDetails.getMyId()) && !post.getUser().getId().equals(userDetails.getMyId()))+"");
         //게시물의 작성자 or 댓글의 작성자인지 확인
-        if (!comment.getUser().getId().equals(userDetails.getUser().getId()) && !post.getUser().getId().equals(userDetails.getUser().getId())){
-                throw new RuntimeException("댓글 수정은 댓글의 작성자 혹은 게시글의 작성자만 가능합니다.");
-                }
+
+        if (!comment.getUser().getId().equals(userDetails.getMyId()) && !post.getUser().getId().equals(userDetails.getMyId())){
+            throw new RuntimeException("댓글 수정은 댓글의 작성자 혹은 게시글의 작성자만 가능합니다.");
+        }
 
         comment.update(commentUpdateRequestDto.getContent());
         return new CommentUpdateResponseDto(
@@ -104,7 +105,7 @@ public class CommentService {
     @Transactional
     public void deleteComment(UserDetailsImpl userDetails,Long post_id, Long comment_id) {
         //게시글이 있는지 확인
-        Post post =postRepository.findById(post_id).orElseThrow(() -> new NullPointerException("게시글을 찾을 수 없습니다."));
+        Post post = this.postRepository.findById(post_id).orElseThrow(() -> new NullPointerException("게시글을 찾을 수 없습니다."));
         //댓글이 있는지 확인
         Comment comment = commentRepository.findById(comment_id)
                 .orElseThrow(() -> new NullPointerException("댓글을 찾을 수 없습니다."));
