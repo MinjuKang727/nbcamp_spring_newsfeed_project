@@ -78,7 +78,7 @@ public class CommentService {
 
         if (!comment.getUser().getId().equals(userDetails.getUser().getId()) && !post.getUser().getId().equals(userDetails.getUser().getId())){
                 throw new AuthorizationServiceException("댓글 수정은 댓글의 작성자 혹은 게시글의 작성자만 가능합니다.");
-                }
+        }
 
         comment.update(commentUpdateRequestDto.getContent());
         return new CommentUpdateResponseDto(

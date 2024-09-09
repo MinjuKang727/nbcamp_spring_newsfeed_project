@@ -7,6 +7,7 @@ import com.sparta.newsfeed_project.domain.user.dto.request.UserUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class User {
     private String phoneNumber;
     private String imageSrc = "defualt_image.jpg";
     private int isDeleted = 0;
+    @Setter
     @Column(nullable = false)
     private String password;
 
@@ -57,15 +59,12 @@ public class User {
         this.role = role;
     }
 
-    public void updateUser(UserUpdateRequestDto requestDto, String password) {
+    public void update(UserUpdateRequestDto requestDto) {
         if (requestDto.getNewUsername() != null) {
             this.username = requestDto.getNewUsername();
         }
         if (requestDto.getNewEmail() != null) {
             this.email = requestDto.getNewEmail();
-        }
-        if (password != null) {
-            this.password = password;
         }
         if (requestDto.getNewPhoneNumber() != null) {
             this.phoneNumber = requestDto.getNewPhoneNumber();

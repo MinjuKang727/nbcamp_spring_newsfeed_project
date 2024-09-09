@@ -4,67 +4,43 @@ package com.sparta.newsfeed_project.domain.comment.controller;
 import com.sparta.newsfeed_project.auth.security.UserDetailsImpl;
 import com.sparta.newsfeed_project.domain.comment.dto.*;
 import com.sparta.newsfeed_project.domain.comment.service.CommentService;
-import com.sparta.newsfeed_project.domain.common.exception.CommonException;
-import com.sparta.newsfeed_project.domain.common.exception.ExceptionCode;
-import com.sparta.newsfeed_project.domain.token.TokenBlacklistService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 public class CommentController {
 
-
     private final CommentService commentService;
-    private final TokenBlacklistService tokenBlacklistService;
 
     @PostMapping("/posts/{post_id}/comments")
-    public ResponseEntity<CommentSaveResponseDto> saveComment (HttpServletRequest request,
-                                                               @AuthenticationPrincipal UserDetailsImpl userDetails,
+    public ResponseEntity<CommentSaveResponseDto> saveComment (@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                @PathVariable Long post_id,
-                                                               @RequestBody CommentSaveRequestDto commentSaveRequestDto) throws CommonException, IOException {
-        if (!this.tokenBlacklistService.isTokenBlackListed(request)) {
-            return ResponseEntity.ok(commentService.saveComment(userDetails.getUser(), post_id,commentSaveRequestDto));
-        }
-
-        throw new CommonException(ExceptionCode.FAILED_SAVE_COMMENT, new CommonException(ExceptionCode.EXPIRED_JWT_TOKEN));
+                                                               @RequestBody CommentSaveRequestDto commentSaveRequestDto) {
+            return ResponseEntity.ok(commentService.saveComment(userDetails.getUser(), post_id, commentSaveRequestDto));
     }
 
     @GetMapping("/posts/{post_id}/comments")
-    public ResponseEntity<List<CommentSimpleResponseDto>> getCommentList (HttpServletRequest request, @PathVariable Long post_id) throws CommonException, IOException {
+    public ResponseEntity<List<CommentSimpleResponseDto>> getCommentList (@PathVariable Long post_id) {
             return ResponseEntity.ok(commentService.getCommentList(post_id));
     }
 
     @PutMapping("/posts/{post_id}/comments/{comment_id}")
-    public ResponseEntity<CommentUpdateResponseDto> updateComment (HttpServletRequest request,
-                                                                   @AuthenticationPrincipal UserDetailsImpl userDetails,
+    public ResponseEntity<CommentUpdateResponseDto> updateComment (@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                    @PathVariable Long post_id,
                                                                    @PathVariable Long comment_id,
-                                                                   @RequestBody CommentUpdateRequestDto commentUpdateRequestDto) throws CommonException, IOException {
-        if (!this.tokenBlacklistService.isTokenBlackListed(request)) {
+                                                                   @RequestBody CommentUpdateRequestDto commentUpdateRequestDto) {
             return ResponseEntity.ok(commentService.updateComment(userDetails,post_id,comment_id,commentUpdateRequestDto));
-        }
-
-        throw new CommonException(ExceptionCode.FAILED_UPDATE_COMMENT, new CommonException(ExceptionCode.EXPIRED_JWT_TOKEN));
-
     }
 
     @DeleteMapping("/posts/{post_id}/comments/{comment_id}")
-    public void deleteComment(HttpServletRequest request,
-                              @AuthenticationPrincipal UserDetailsImpl userDetails,
+    public void deleteComment(@AuthenticationPrincipal UserDetailsImpl userDetails,
                               @PathVariable Long post_id,
-                              @PathVariable Long comment_id) throws CommonException, IOException {
-        if (!this.tokenBlacklistService.isTokenBlackListed(request)) {
-            this.commentService.deleteComment(userDetails,post_id,comment_id);
-            return;
-        }
-
-        throw new CommonException(ExceptionCode.FAILED_DELETE_COMMENT, new CommonException(ExceptionCode.EXPIRED_JWT_TOKEN));
+                              @PathVariable Long comment_id) {
+        this.commentService.deleteComment(userDetails,post_id,comment_id);
     }
 }
